@@ -3,19 +3,22 @@ BlurStrength=13
 NoiseStrength=6
 
 [Effect-blurplus]
+BlurDecorations=true
+BlurDocks=true
 BlurMenus=true
-BlurStrength=6
+BlurStrength=3
 BottomCornerRadius=2
 DockCornerRadius=2
 MenuCornerRadius=2
-NoiseStrength=14
+NoiseStrength=6
 RefractionCornerRadius=142
 RefractionEdgeSize=23
 RefractionMode=1
-RefractionNormalPow=16
+RefractionNormalPow=9
 RefractionRGBFringing=10
 RefractionStrength=10
 RefractionTextureRepeatMode=1
+RoundCornersOfMaximizedWindows=true
 RoundedCornersAntialiasing=2
 TopCornerRadius=2
 WindowClasses=class1\nclass2\nclass3\n
