@@ -20,8 +20,11 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > 
 > kcmshell6 kcm_kwin_effects
 
-to use: simply enable 'better blur' (settings-window)
-
+to use: simply 
+1. disable old 'blur effect' (settings-window)
+2. enable 'better blur' (settings-window)
+3. use a theme that supports translucency, like [this](https://github.com/vinceliuice/MacTahoe-kde)
+   
 # install (arch)
 soon to come
 
