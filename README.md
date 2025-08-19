@@ -13,6 +13,8 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > sudo apt install ./int_better_blur_liquid_1-6_amd64.deb
 > 
 > wget https://github.com/slynobody/liquid-plasma_better_blur/blob/main/defaults
+>
+> cp ~/.config/kwinrc ~/.config/kwinrc_bu
 > 
 > cat ./defaults > ~/.config/kwinrc
 > 
