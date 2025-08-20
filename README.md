@@ -1,9 +1,10 @@
 # liquid glassy (linux, interface-upgrade)
 <img src="blur.png"/>
 
-## dynamic "liquid glassy" ui-effect (linux, kde plasma 6.3+: 'better-blur'-extension)
+## dynamic "liquid glassy" ui-effect ('better-blur' plasma-extension)
 <img src="blur1.png"/>
-precompiled for easy installation
+(req.: linux, kde-plasma: 6.3.6+, qt: 6.8.2+)
+*precompiled* for easy installation
 
 source: https://github.com/iGerman00/kwin-effects-forceblur
 
