@@ -42,6 +42,7 @@ simply
 3. use a theme that supports translucency, like [this](https://github.com/vinceliuice/MacTahoe-kde)
 
 # nothing changed
+* do a reboot
 * use a theme supporting like [this](https://github.com/vinceliuice/MacTahoe-kde)
 * Go to *System Settings* > *Window Management* > *Desktop Effects* > '*Better Blur*' : turn it on
 * Go to *System Settings* > *Window Management* > *Desktop Effects* > '*Blur*' : turn it off
