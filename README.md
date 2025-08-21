@@ -21,14 +21,32 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > cat ./defaults > ~/.config/kwinrc
 > 
 > kcmshell6 kcm_kwin_effects
-
-to use: simply 
-1. disable old 'blur effect' (settings-window)
-2. enable 'better blur' (settings-window)
-3. use a theme that supports translucency, like [this](https://github.com/vinceliuice/MacTahoe-kde)
    
 # install (arch)
-soon to come
+>wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6_arch/betterblur_liquid_kde6-1.1.6a-1-x86_64.pkg.tar.zst
+>
+>pacman -U ./betterblur_liquid_kde6-1.1.6a-1-x86_64.pkg.tar.zst
+>
+>wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
+>
+>cp ~/.config/kwinrc ~/.config/kwinrc_bu
+>
+>cat ./defaults > ~/.config/kwinrc
+>
+>kcmshell6 kcm_kwin_effects
+
+# useage
+simply 
+1. *dis*able old 'blur' effect (settings-window)
+2. *en*able 'better blur' (settings-window)
+3. use a theme that supports translucency, like [this](https://github.com/vinceliuice/MacTahoe-kde)
+
+# nothing changed
+* use a theme supporting like [this](https://github.com/vinceliuice/MacTahoe-kde)
+* Go to *System Settings* > *Window Management* > *Desktop Effects* > '*Better Blur*' : turn it on
+* Go to *System Settings* > *Window Management* > *Desktop Effects* > '*Blur*' : turn it off
+* Toggle *Better Blur* Configure icon > '*Force blur*' > activate everything > esp 'Blur all except matching'
+* Try putting a *Konsole* Window transparent and move it around.
 
 # Disclaimer
 1. Use at your own risk!
