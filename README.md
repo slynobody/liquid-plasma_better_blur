@@ -2,7 +2,7 @@
 <img src="blur.png"/>
 
 ## dynamic "liquid glassy" ui-effect ('better-blur' plasma-extension)
-[![Watch the video](https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/main/thumbnail.png)](https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/main/video.webm)
+[![Watch the video](https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/main/thumbnail.png)](https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/main/video.mp4)
 
 (req.: linux, kde-plasma: 6.3.6+, qt: 6.8.2+)
 *precompiled* for easy installation
