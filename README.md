@@ -22,18 +22,6 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > 
 > kcmshell6 kcm_kwin_effects
    
-# install (arch)
->wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6_arch/betterblur_liquid_kde6-1.1.6a-1-x86_64.pkg.tar.zst
->
->pacman -U ./betterblur_liquid_kde6-1.1.6a-1-x86_64.pkg.tar.zst
->
->wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
->
->cp ~/.config/kwinrc ~/.config/kwinrc_bu
->
->cat ./defaults > ~/.config/kwinrc
->
->kcmshell6 kcm_kwin_effects
 
 # useage
 simply 
