@@ -1,5 +1,5 @@
 # liquid glassy (linux, interface-upgrade)
-<img src="blur.png"/>
+<img width="262" height="114" alt="screenshot-20250908-1902001" src="https://github.com/user-attachments/assets/f3bc40d7-e854-4ae4-8c4f-f2a8738df662" />
 
 ## dynamic "liquid glassy" ui-effect ('better-blur' plasma-extension)
 [video.webm](https://github.com/user-attachments/assets/ddb1f5be-c153-4187-a3bc-98f0710da18a)
@@ -21,7 +21,9 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > cat ./defaults > ~/.config/kwinrc
 > 
 > kcmshell6 kcm_kwin_effects
-   
+
+# install (arch)
+will recompile soon against qt 6.9, package does not work on steamdeck / plasma < or > 6.3 currently.
 
 # useage
 simply 
