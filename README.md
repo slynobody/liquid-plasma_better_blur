@@ -23,13 +23,23 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > kcmshell6 kcm_kwin_effects
 
 # install (arch)
-will recompile soon against qt 6.9, package does not work on steamdeck / plasma < or > 6.3 currently.
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6b_arch/betterblur_liquid_kde6-1_1.6b-1-x86_64.pkg.tar.zst
+> 
+> sudo pacman -U ./betterblur_liquid_kde6-1_1.6b-1-x86_64.pkg.tar.zst
+> 
+> wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
+>
+> cp ~/.config/kwinrc ~/.config/kwinrc_bu
+> 
+> cat ./defaults > ~/.config/kwinrc
+> 
+> kcmshell6 kcm_kwin_effects
 
 # useage
 simply 
-1. *dis*able old 'blur' effect (settings-window)
+1. *dis*able other / common 'blur' & 'transparency' - effects (settings-window)
 2. *en*able 'better blur' (settings-window)
-3. use a theme that supports translucency, like [this](https://github.com/vinceliuice/MacTahoe-kde)
+3. use a global theme that supports translucency, like [this](https://github.com/vinceliuice/MacTahoe-kde)
 
 # nothing changed
 * do a reboot
