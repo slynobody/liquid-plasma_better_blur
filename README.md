@@ -5,7 +5,7 @@
 [video.webm](https://github.com/user-attachments/assets/ddb1f5be-c153-4187-a3bc-98f0710da18a)
 
 (1.6a - req.: linux, kde-plasma: 6.3.6+, qt: 6.8.2+)
-(1.6b - req.: linux, kde-plasma: 6.4+, qt: 6.9+)
+(1.6c - req.: linux, arch, kde-plasma: 6.4+, qt: 6.9+)
 *precompiled* for easy installation
 
 source: https://github.com/iGerman00/kwin-effects-forceblur
@@ -24,6 +24,21 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > kcmshell6 kcm_kwin_effects
 
 # install (arch, plasma 6.4+)
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6c_arch/betterblur_liquid_kde6-1_1.6c-1-x86_64.pkg.tar.zst
+> 
+> sudo pacman -U ./betterblur_liquid_kde6-1_1.6c-1-x86_64.pkg.tar.zst
+> 
+> wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
+>
+> cp ~/.config/kwinrc ~/.config/kwinrc_bu
+> 
+> cat ./defaults > ~/.config/kwinrc
+> 
+> kcmshell6 kcm_kwin_effects
+
+# install (SteamOS 3.8, dev-Channel / 'main')
+> sudo steamos-devmode enable --no-prompt
+> 
 > wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6c_arch/betterblur_liquid_kde6-1_1.6c-1-x86_64.pkg.tar.zst
 > 
 > sudo pacman -U ./betterblur_liquid_kde6-1_1.6c-1-x86_64.pkg.tar.zst
