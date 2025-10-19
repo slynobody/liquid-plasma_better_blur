@@ -1,4 +1,4 @@
-# liquid glassy (linux, interface-upgrade)
+# liquid glassy (linux, interface-effect, precompiled)
 <img width="262" height="114" alt="screenshot-20250908-1902001" src="https://github.com/user-attachments/assets/f3bc40d7-e854-4ae4-8c4f-f2a8738df662" />
 <img width="262" height="114" alt="screenshot" src="https://github.com/user-attachments/assets/6d799362-bd51-43f9-9d80-1ca331876460" />
 
