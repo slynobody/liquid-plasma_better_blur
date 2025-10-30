@@ -2,16 +2,17 @@
 <img width="262" height="114" alt="screenshot-20250908-1902001" src="https://github.com/user-attachments/assets/f3bc40d7-e854-4ae4-8c4f-f2a8738df662" />
 <img width="262" height="114" alt="screenshot" src="https://github.com/user-attachments/assets/6d799362-bd51-43f9-9d80-1ca331876460" />
 
-## dynamic "liquid glassy" ui-effect ('better-blur' plasma-extension)
+## dynamic "liquid glassy" ui-effect ('better-blur' plasma-extension, incl. currently unmerged 'lens-refraction'-code)
 [video.webm](https://github.com/user-attachments/assets/ddb1f5be-c153-4187-a3bc-98f0710da18a)
 
 (1.6a - req.: linux, kde-plasma: 6.3.6+, qt: 6.8.2+)
 (1.6c - req.: linux, arch, kde-plasma: 6.4+, qt: 6.9+)
+(1.6d - req.: linux, deb, kde-plasma: 6.51, qt: 6.9.2)
 *precompiled* for easy installation
 
 source: https://github.com/iGerman00/kwin-effects-forceblur
 
-# install (debian)
+# install (debian, trixie / forky)
 > wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6/int_better_blur_liquid_1-6_amd64.deb
 > 
 > sudo apt install ./int_better_blur_liquid_1-6_amd64.deb
@@ -23,6 +24,17 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > cat ./defaults > ~/.config/kwinrc
 > 
 > kcmshell6 kcm_kwin_effects
+
+# install (debian, sid / experimental)
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1%2C6d1_debian/int_better_blur_liquid_1-6_51_amd64.deb
+> 
+> sudo apt install ./int_better_blur_liquid_1-6_51_amd64.deb
+> 
+> wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
+>
+> cp ~/.config/kwinrc ~/.config/kwinrc_bu
+> 
+> cat ./defaults > ~/.config/kwinrc
 
 # install (arch, plasma 6.4+)
 > wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6c_arch/betterblur_liquid_kde6-1_1.6c-1-x86_64.pkg.tar.zst
