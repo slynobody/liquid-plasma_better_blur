@@ -5,14 +5,19 @@
 ## dynamic "liquid glassy" ui-effect ('better-blur' plasma-extension, incl. currently unmerged 'lens-refraction'-code)
 [video.webm](https://github.com/user-attachments/assets/ddb1f5be-c153-4187-a3bc-98f0710da18a)
 
-(1.6a - req.: linux, kde-plasma: 6.3.6+, qt: 6.8.2+)
+(1.6a - req.: linux, kde-plasma: 6.3.6+, qt: 6.8.2+) > trixie
+
 (1.6c - req.: linux, arch, kde-plasma: 6.4+, qt: 6.9+)
-(1.6d - req.: linux, deb, kde-plasma: 6.51, qt: 6.9.2)
+
+(1.6d - req.: linux, deb, kde-plasma: 6.5.1, qt: 6.9.2) > forky
+
+(1.6d - req.: linux, deb, kde-plasma: 6.5.2, qt: 6.9.2) > sid
+
 *precompiled* for easy installation
 
 source: https://github.com/iGerman00/kwin-effects-forceblur
 
-# install (debian, trixie / for forky or sid use latest packages)
+# install (debian, trixie)
 > wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6/int_better_blur_liquid_1-6_amd64.deb
 > 
 > sudo apt install ./int_better_blur_liquid_1-6_amd64.deb
