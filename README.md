@@ -12,7 +12,7 @@
 
 source: https://github.com/iGerman00/kwin-effects-forceblur
 
-# install (debian, trixie / forky)
+# install (debian, trixie / for forky or sid use latest packages)
 > wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6/int_better_blur_liquid_1-6_amd64.deb
 > 
 > sudo apt install ./int_better_blur_liquid_1-6_amd64.deb
