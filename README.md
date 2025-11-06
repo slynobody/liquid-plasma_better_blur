@@ -31,7 +31,7 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > kcmshell6 kcm_kwin_effects
 
 # install (debian, sid / experimental)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1%2C6d1_debian/int_better_blur_liquid_1-6_51_amd64.deb
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6d2_deb/int_better_blur_liquid_1-6_5-2_amd64.deb
 > 
 > sudo apt install ./int_better_blur_liquid_1-6_51_amd64.deb
 > 
