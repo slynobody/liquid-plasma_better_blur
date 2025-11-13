@@ -42,10 +42,10 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > 
 > cat ./defaults > ~/.config/kwinrc
 
-# install (arch, plasma 6.4 only)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6c_arch/betterblur_liquid_kde6-1_1.6c-1-x86_64.pkg.tar.zst
+# install (arch, plasma 6.5)
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1%2C6d_arch/betterblur_liquid_kde6-1.1.6d-1-x86_64.pkg.tar.zst
 > 
-> sudo pacman -U ./betterblur_liquid_kde6-1_1.6c-1-x86_64.pkg.tar.zst
+> sudo pacman -U ./betterblur_liquid_kde6-1.1.6d-1-x86_64.pkg.tar.zst
 > 
 > wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
 >
@@ -55,12 +55,12 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > 
 > kcmshell6 kcm_kwin_effects
 
-# install (SteamOS 3.8, dev-Channel / 'main')
+# install (SteamOS 3.9, dev-Channel or 'main')
 > sudo steamos-devmode enable --no-prompt
 > 
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6c_arch/betterblur_liquid_kde6-1_1.6c-1-x86_64.pkg.tar.zst
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1%2C6d_arch/betterblur_liquid_kde6-1.1.6d-1-x86_64.pkg.tar.zst
 > 
-> sudo pacman -U ./betterblur_liquid_kde6-1_1.6c-1-x86_64.pkg.tar.zst
+> sudo pacman -U ./betterblur_liquid_kde6-1.1.6d-1-x86_64.pkg.tar.zst
 > 
 > wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
 >
@@ -78,7 +78,7 @@ simply
 
 # nothing changed
 * do a reboot
-* use a theme supporting like [this](https://github.com/vinceliuice/MacTahoe-kde)
+* use a theme supporting like [this](https://store.kde.org/p/23288)
 * Go to *System Settings* > *Window Management* > *Desktop Effects* > '*Better Blur*' : turn it on
 * Go to *System Settings* > *Window Management* > *Desktop Effects* > '*Blur*' : turn it off
 * Toggle *Better Blur* Configure icon > '*Force blur*' > activate everything > esp 'Blur all except matching'
