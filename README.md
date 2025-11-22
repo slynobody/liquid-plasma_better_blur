@@ -10,9 +10,13 @@
 
 (1.6c - req.: linux, arch, kde-plasma: 6.4+, qt: 6.9+)
 
-(1.6d - req.: linux, deb, kde-plasma: 6.5.1, qt: 6.9.2) > forky
+(1.6d - req.: linux, deb, kde-plasma: 6.5.1, qt: 6.9.2)
 
-(1.6d - req.: linux, deb, kde-plasma: 6.5.2, qt: 6.9.2) > sid
+(1.6d - req.: linux, deb, kde-plasma: 6.5.2, qt: 6.9.2) > forky
+
+(1.6e - req.: linux, deb, kde-plasma: 6.5.3, qt: 6.9.2) > sid
+
+(1.6e - req.: linux, arch, kde-plasma: 6.5.3, qt: 6.9.2)
 
 *precompiled* for easy installation
 
@@ -32,9 +36,9 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > kcmshell6 kcm_kwin_effects
 
 # install (debian, sid / experimental)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6d2_deb/int_better_blur_liquid_1-6_5-2_amd64.deb
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6d2_deb/int_better_blur_liquid_1-6_5-3_amd64.deb
 > 
-> sudo apt install ./int_better_blur_liquid_1-6_51_amd64.deb
+> sudo apt install ./int_better_blur_liquid_1-6_53_amd64.deb
 > 
 > wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
 >
@@ -42,10 +46,10 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > 
 > cat ./defaults > ~/.config/kwinrc
 
-# install (arch, plasma 6.5)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1%2C6d_arch/betterblur_liquid_kde6-1.1.6d-1-x86_64.pkg.tar.zst
+# install (arch, plasma 6.5.3)
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1%2C6d_arch/betterblur_liquid_kde6-1.1.6e-1-x86_64.pkg.tar.zst
 > 
-> sudo pacman -U ./betterblur_liquid_kde6-1.1.6d-1-x86_64.pkg.tar.zst
+> sudo pacman -U ./betterblur_liquid_kde6-1.1.6e-1-x86_64.pkg.tar.zst
 > 
 > wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
 >
