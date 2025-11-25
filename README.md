@@ -64,7 +64,7 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 simply 
 1. *dis*able other / common 'blur' & 'transparency' - effects (settings-window)
 2. *en*able 'better blur' (settings-window)
-3. use a global theme that supports translucency, like [this](https://github.com/vinceliuice/MacTahoe-kde)
+3. use a global theme that supports translucency, like [this](https://www.pling.com/p/2328884)
 
 # nothing changed
 * do a reboot
