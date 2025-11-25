@@ -68,7 +68,7 @@ simply
 
 # nothing changed
 * do a reboot
-* use a theme supporting like [this](https://store.kde.org/p/23288)
+* use a theme supporting like [this](https://www.pling.com/p/2328884)
 * Go to *System Settings* > *Window Management* > *Desktop Effects* > '*Better Blur*' : turn it on
 * Go to *System Settings* > *Window Management* > *Desktop Effects* > '*Blur*' : turn it off
 * Toggle *Better Blur* Configure icon > '*Force blur*' > activate everything > esp 'Blur all except matching'
