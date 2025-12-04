@@ -1,19 +1,16 @@
 [Effect-blurplus]
 BlurStrength=3
-Brightness=1.1
 FakeBlurCustomImageBlur=false
 FakeBlurDisableWhenWindowBehind=false
-NoiseStrength=7
-RefractionCornerRadius=94
-RefractionEdgeSize=19
+NoiseStrength=14
+RefractionCornerRadius=85
+RefractionEdgeSize=10
 RefractionMode=1
 RefractionNormalPow=11
 RefractionRGBFringing=5
-RefractionStrength=8
+RefractionStrength=18
 RefractionTextureRepeatMode=1
-RoundCornersOfMaximizedWindows=true
-RoundedCornersAntialiasing=5
-Saturation=1.3
+RoundedCornersAntialiasing=0
 WindowClasses=class1\nclass2\nclass3\ncrystal-dock
 
 [Plugins]
