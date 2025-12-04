@@ -1,10 +1,11 @@
 # liquid glassy (linux, interface-effect, precompiled)
 <img width="262" height="114" alt="screenshot-20250908-1902001" src="https://github.com/user-attachments/assets/f3bc40d7-e854-4ae4-8c4f-f2a8738df662" />
 <img width="262" height="114" alt="screenshot" src="https://github.com/user-attachments/assets/6d799362-bd51-43f9-9d80-1ca331876460" />
+<noscript><a href="https://liberapay.com/integr/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
 
 ## dynamic "liquid glassy" ui-effect
 ### ('better-blur' plasma-extension, incl. currently unmerged 'lens-refraction'-code)
-[video.webm](https://github.com/user-attachments/assets/ddb1f5be-c153-4187-a3bc-98f0710da18a)
+![vokoscreenNG-2025-12-04_16-21-39-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/26c3578d-b37d-495d-9e78-0d6f556c68ab)
 
 (1.6a - req.: linux, kde-plasma: 6.3.6+, qt: 6.8.2+) > trixie
 
@@ -21,6 +22,7 @@
 *precompiled* for easy installation
 
 source: https://github.com/iGerman00/kwin-effects-forceblur
+
 
 # install (debian, trixie)
 > wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6/int_better_blur_liquid_1-6_amd64.deb
