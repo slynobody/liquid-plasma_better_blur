@@ -48,10 +48,10 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > 
 > cat ./defaults > ~/.config/kwinrc
 
-# install (arch, plasma 6.5.3)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1%2C6d_arch/betterblur_liquid_kde6-1.1.6e-1-x86_64.pkg.tar.zst
+# install (arch, plasma 6.5.4)
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1%2C6d_arch/betterblur_liquid_kde6-1.1.6f-1-x86_64.pkg.tar.zst
 > 
-> sudo pacman -U ./betterblur_liquid_kde6-1.1.6e-1-x86_64.pkg.tar.zst
+> sudo pacman -U ./betterblur_liquid_kde6-1.1.6f-1-x86_64.pkg.tar.zst
 > 
 > wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
 >
