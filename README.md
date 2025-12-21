@@ -17,7 +17,7 @@
 
 (1.6f - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.9.2) > sid
 
-(1.6e - req.: linux, arch, kde-plasma: 6.5.4, qt: 6.9.2)
+(1.6f - req.: linux, arch, kde-plasma: 6.5.4, qt: 6.9.2)
 
 *precompiled* for easy installation
 
