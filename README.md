@@ -1,23 +1,25 @@
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black)](https://ko-fi.com/integr)
+
 # liquid glassy (linux, interface-effect, precompiled)
 <img width="262" height="114" alt="screenshot-20250908-1902001" src="https://github.com/user-attachments/assets/f3bc40d7-e854-4ae4-8c4f-f2a8738df662" />
 <img width="262" height="114" alt="screenshot" src="https://github.com/user-attachments/assets/6d799362-bd51-43f9-9d80-1ca331876460" />
-<noscript><a href="https://liberapay.com/integr/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>
 
 ## dynamic "liquid glassy" ui-effect
 ### ('better-blur' plasma-extension, incl. currently unmerged 'lens-refraction'-code)
 ![vokoscreenNG-2025-12-04_16-21-39-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/26c3578d-b37d-495d-9e78-0d6f556c68ab)
 
-(1.6a - req.: linux, kde-plasma: 6.3.6+, qt: 6.8.2+) > trixie
 
-(1.6c - req.: linux, arch, kde-plasma: 6.4+, qt: 6.9+)
+(1.6f - req.: linux, arch, kde-plasma: 6.5.4, qt: 6.9.2)
 
-(1.6e - req.: linux, deb, kde-plasma: 6.5.3, qt: 6.9.2) > forky
+(1.6f - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.9.2) > ubuntu: resolute / debian: sid
 
 (1.6e - req.: linux, arch, kde-plasma: 6.5.3, qt: 6.9.2)
 
-(1.6f - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.9.2) > sid
+(1.6e - req.: linux, deb, kde-plasma: 6.5.3, qt: 6.9.2) > forky
 
-(1.6f - req.: linux, arch, kde-plasma: 6.5.4, qt: 6.9.2)
+(1.6c - req.: linux, arch, kde-plasma: 6.4+, qt: 6.9+)
+
+(1.6a - req.: linux, kde-plasma: 6.3.6+, qt: 6.8.2+) > ubuntu: universe / debian: trixie
 
 *precompiled* for easy installation
 
