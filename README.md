@@ -1,13 +1,14 @@
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black)](https://ko-fi.com/integr)
 
-# liquid glassy (linux, interface-effect, precompiled)
+# liquid better blur (linux, interface-effect, *precompiled*)
 <img width="262" height="114" alt="screenshot-20250908-1902001" src="https://github.com/user-attachments/assets/f3bc40d7-e854-4ae4-8c4f-f2a8738df662" />
 <img width="262" height="114" alt="screenshot" src="https://github.com/user-attachments/assets/6d799362-bd51-43f9-9d80-1ca331876460" />
 
 ## dynamic "liquid glassy" ui-effect
-### ('better-blur' plasma-extension, incl. currently unmerged 'lens-refraction'-code)
+### ('better-blur dx' plasma-extension,)
 ![vokoscreenNG-2025-12-04_16-21-39-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/26c3578d-b37d-495d-9e78-0d6f556c68ab)
 
+(2.1a - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.9.2) > ubuntu: resolute / debian: sid
 
 (1.6f - req.: linux, arch, kde-plasma: 6.5.4, qt: 6.9.2)
 
@@ -23,7 +24,7 @@
 
 *precompiled* for easy installation
 
-source: https://github.com/iGerman00/kwin-effects-forceblur
+source: https://github.com/xarblu/kwin-effects-better-blur-dx
 
 
 # install (debian, trixie)
@@ -40,7 +41,7 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 > kcmshell6 kcm_kwin_effects
 
 # install (debian, sid / experimental)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6.d3_deb/int_better_blur_liquid_1-6_5_4_amd64.deb
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.1_deb/int_better_blur_liquid_1-6_5_4_amd64.deb
 > 
 > sudo apt install ./int_better_blur_liquid_1-6_5_4_amd64.deb
 > 
@@ -66,12 +67,12 @@ source: https://github.com/iGerman00/kwin-effects-forceblur
 # useage
 simply 
 1. *dis*able other / common 'blur' & 'transparency' - effects (settings-window)
-2. *en*able 'better blur' (settings-window)
+2. *en*able 'better blur dx' (settings-window)
 3. use a global theme that supports translucency, like [this](https://www.pling.com/p/2328884)
 
 # nothing changed
 * do a reboot
-* use a theme supporting like [this](https://www.pling.com/p/2328884)
+* use a theme supporting the effect like [this](https://www.pling.com/p/2328884)
 * Go to *System Settings* > *Window Management* > *Desktop Effects* > '*Better Blur*' : turn it on
 * Go to *System Settings* > *Window Management* > *Desktop Effects* > '*Blur*' : turn it off
 * Toggle *Better Blur* Configure icon > '*Force blur*' > activate everything > esp 'Blur all except matching'
