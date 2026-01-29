@@ -40,7 +40,7 @@ source: https://github.com/xarblu/kwin-effects-better-blur-dx
 > 
 > kcmshell6 kcm_kwin_effects
 
-# install (debian, sid / experimental)
+# install (debian, forky / sid / experimental)
 > wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.1_deb/int_better_blur_liquid_1-6_5_4_amd64.deb
 > 
 > sudo apt install ./int_better_blur_liquid_1-6_5_4_amd64.deb
