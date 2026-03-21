@@ -8,6 +8,8 @@
 ### ('better-blur dx' plasma-extension,)
 ![vokoscreenNG-2025-12-04_16-21-39-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/26c3578d-b37d-495d-9e78-0d6f556c68ab)
 
+(2.2f  - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.10.2) > ubuntu: resolute / debian: sid
+
 (2.2  - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.9.2) > ubuntu: resolute / debian: sid
 
 (1.6f - req.: linux, arch, kde-plasma: 6.5.4, qt: 6.9.2)
@@ -40,7 +42,19 @@ source: https://github.com/xarblu/kwin-effects-better-blur-dx
 > 
 > kcmshell6 kcm_kwin_effects
 
-# install (debian, forky / sid / experimental)
+# install (debian, sid)
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.2e_deb/int_better_blur_liquid_1-6_5_4_amd64.deb
+> 
+> sudo apt install ./int_better_blur_liquid_1-6_5_4_amd64.deb
+> 
+> wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
+>
+> cp ~/.config/kwinrc ~/.config/kwinrc_bu
+> 
+> cat ./defaults > ~/.config/kwinrc
+
+
+# install (debian, forky)
 > wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.2_deb/int_better_blur_liquid_1-6_5_4_amd64.deb
 > 
 > sudo apt install ./int_better_blur_liquid_1-6_5_4_amd64.deb
