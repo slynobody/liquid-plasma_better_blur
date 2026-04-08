@@ -45,9 +45,9 @@ source: https://github.com/xarblu/kwin-effects-better-blur-dx
 > kcmshell6 kcm_kwin_effects
 
 # install (debian, sid)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.2e_deb/int_better_blur_liquid_1-6_5_4_amd64.deb
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.2g_deb/int_better_blur_liquid_1-6_6_3_amd64.deb
 > 
-> sudo apt install ./int_better_blur_liquid_1-6_5_4_amd64.deb
+> sudo apt install ./int_better_blur_liquid_1-6_6_3_amd64.deb
 > 
 > wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
 >
@@ -57,7 +57,7 @@ source: https://github.com/xarblu/kwin-effects-better-blur-dx
 
 
 # install (debian, forky)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.2_deb/int_better_blur_liquid_1-6_5_4_amd64.deb
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.2e_deb/int_better_blur_liquid_1-6_5_4_amd64.deb
 > 
 > sudo apt install ./int_better_blur_liquid_1-6_5_4_amd64.deb
 > 
