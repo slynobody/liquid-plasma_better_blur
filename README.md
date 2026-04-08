@@ -8,24 +8,6 @@
 ### ('better-blur dx' plasma-extension,)
 ![vokoscreenNG-2025-12-04_16-21-39-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/26c3578d-b37d-495d-9e78-0d6f556c68ab)
 
-(2.2g  - req.: linux, deb, kde-plasma: 6.6.3, qt: 6.10.2) > debian: sid
-
-(2.2f  - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.10.2) > debian: forky 
-
-(2.2  - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.9.2) > debian: forky
-
-(1.6f - req.: linux, arch, kde-plasma: 6.5.4, qt: 6.9.2)
-
-(1.6f - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.9.2)
-
-(1.6e - req.: linux, arch, kde-plasma: 6.5.3, qt: 6.9.2)
-
-(1.6e - req.: linux, deb, kde-plasma: 6.5.3, qt: 6.9.2)
-
-(1.6c - req.: linux, arch, kde-plasma: 6.4+, qt: 6.9+)
-
-(1.6a - req.: linux, kde-plasma: 6.3.6+, qt: 6.8.2+) > ubuntu: universe / debian: trixie
-
 *precompiled* for easy installation
 
 source: https://github.com/xarblu/kwin-effects-better-blur-dx
@@ -93,6 +75,25 @@ simply
 * Go to *System Settings* > *Window Management* > *Desktop Effects* > '*Blur*' : turn it off
 * Toggle *Better Blur* Configure icon > '*Force blur*' > activate everything > esp 'Blur all except matching'
 * Try putting a *Konsole* Window transparent and move it around.
+
+# versions
+(2.2g - req.: linux, deb, kde-plasma: 6.6.3, qt: 6.10.2) > debian: sid
+
+(2.2f - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.10.2) > debian: forky
+
+(2.2 - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.9.2) > debian: forky
+
+(1.6f - req.: linux, arch, kde-plasma: 6.5.4, qt: 6.9.2)
+
+(1.6f - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.9.2)
+
+(1.6e - req.: linux, arch, kde-plasma: 6.5.3, qt: 6.9.2)
+
+(1.6e - req.: linux, deb, kde-plasma: 6.5.3, qt: 6.9.2)
+
+(1.6c - req.: linux, arch, kde-plasma: 6.4+, qt: 6.9+)
+
+(1.6a - req.: linux, kde-plasma: 6.3.6+, qt: 6.8.2+) > ubuntu: universe / debian: trixie
 
 # Disclaimer
 1. Use at your own risk!
