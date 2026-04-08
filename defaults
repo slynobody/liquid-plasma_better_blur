@@ -3,18 +3,17 @@ BlurDecorations=true
 BlurDocks=true
 BlurMenus=true
 BlurStrength=2
-Contrast=115
 CornerRadius=5
 ForceContrastParams=true
-NoiseStrength=7
-RefractionCornerRadius=107
-RefractionEdgeSize=28
+NoiseStrength=2
+RefractionCornerRadius=96
+RefractionEdgeSize=13
 RefractionMode=1
-RefractionNormalPow=11
+RefractionNormalPow=12
 RefractionRGBFringing=12
-RefractionStrength=5
+RefractionStrength=10
 Saturation=100
-WindowClasses=class1\nclass2\nclass3\nclass4
+WindowClasses=class1\nclass2\nclass3\nclass4\nzen\
 
 [Effect-blurplus]
 BlurStrength=3
