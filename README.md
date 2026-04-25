@@ -22,6 +22,9 @@ source: https://github.com/xarblu/kwin-effects-better-blur-dx
 > cp ~/.config/kwinrc ~/.config/kwinrc_bu
 > 
 > cat ./defaults > ~/.config/kwinrc
+>
+> kcmshell6 kcm_kwin_effects
+
 
 <details>
   <summary>🔽older (Debian)</summary>
