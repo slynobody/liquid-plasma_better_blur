@@ -100,8 +100,11 @@ simply
 * Try putting a *Konsole* Window transparent and move it around.
 
 # versions
-(2.2g - req.: linux, deb, kde-plasma: 6.6.3, qt: 6.10.2) > debian: sid
+(2.23e - req.: linux, deb, kde-plasma: 6.6.3, qt: 6.10.2) > debian: sid
 
+<details>
+  <summary>🔽older</summary>
+  
 (2.2f - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.10.2) > debian: forky
 
 (2.2 - req.: linux, deb, kde-plasma: 6.5.4, qt: 6.9.2) > debian: forky
@@ -117,6 +120,10 @@ simply
 (1.6c - req.: linux, arch, kde-plasma: 6.4+, qt: 6.9+)
 
 (1.6a - req.: linux, kde-plasma: 6.3.6+, qt: 6.8.2+) > ubuntu: universe / debian: trixie
+
+</details> 
+
+
 
 # Disclaimer
 1. Use at your own risk!
