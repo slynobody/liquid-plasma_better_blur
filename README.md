@@ -12,6 +12,30 @@
 
 source: https://github.com/xarblu/kwin-effects-better-blur-dx
 
+# install (debian, sid, Plasma 6.6.3, QT 6.10.2)
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.2g_deb/int_better_blur_liquid_1-6_6_3_amd64.deb
+> 
+> sudo apt install ./int_better_blur_liquid_1-6_6_3_amd64.deb
+> 
+> wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
+>
+> cp ~/.config/kwinrc ~/.config/kwinrc_bu
+> 
+> cat ./defaults > ~/.config/kwinrc
+
+<details>
+  <summary>🔽older (Debian)</summary>
+
+# install (debian, forky)
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.2e_deb/int_better_blur_liquid_1-6_5_4_amd64.deb
+> 
+> sudo apt install ./int_better_blur_liquid_1-6_5_4_amd64.deb
+> 
+> wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
+>
+> cp ~/.config/kwinrc ~/.config/kwinrc_bu
+> 
+> cat ./defaults > ~/.config/kwinrc
 
 # install (debian, trixie)
 > wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1.6/int_better_blur_liquid_1-6_amd64.deb
@@ -26,30 +50,26 @@ source: https://github.com/xarblu/kwin-effects-better-blur-dx
 > 
 > kcmshell6 kcm_kwin_effects
 
-# install (debian, sid)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.2g_deb/int_better_blur_liquid_1-6_6_3_amd64.deb
+</details>
+ 
+ # install (arch, plasma 6.6.3)
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.2_arch/betterblur_liquid_kde6-1.2.3a-1-x86_64.pkg.tar.zst
 > 
-> sudo apt install ./int_better_blur_liquid_1-6_6_3_amd64.deb
-> 
-> wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
->
-> cp ~/.config/kwinrc ~/.config/kwinrc_bu
-> 
-> cat ./defaults > ~/.config/kwinrc
-
-
-# install (debian, forky)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.2e_deb/int_better_blur_liquid_1-6_5_4_amd64.deb
-> 
-> sudo apt install ./int_better_blur_liquid_1-6_5_4_amd64.deb
+> sudo pacman -U ./betterblur_liquid_kde6-1.2.3a-1-x86_64.pkg.tar.zst
 > 
 > wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
 >
 > cp ~/.config/kwinrc ~/.config/kwinrc_bu
 > 
 > cat ./defaults > ~/.config/kwinrc
+> 
+> kcmshell6 kcm_kwin_effects
 
-# install (arch, plasma 6.5.4)
+
+<details>
+  <summary>🔽older (Arch)</summary>
+  
+ # install (arch, plasma 6.5.4)
 > wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1%2C6d_arch/betterblur_liquid_kde6-1.1.6f-1-x86_64.pkg.tar.zst
 > 
 > sudo pacman -U ./betterblur_liquid_kde6-1.1.6f-1-x86_64.pkg.tar.zst
@@ -61,6 +81,9 @@ source: https://github.com/xarblu/kwin-effects-better-blur-dx
 > cat ./defaults > ~/.config/kwinrc
 > 
 > kcmshell6 kcm_kwin_effects
+> 
+</details> 
+
 
 # useage
 simply 
