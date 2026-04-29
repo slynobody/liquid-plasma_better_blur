@@ -103,7 +103,7 @@ simply
 * Try putting a *Konsole* Window transparent and move it around.
 
 # versions
-(2.23e - req.: linux, deb, kde-plasma: 6.6.3, qt: 6.10.2) > debian: sid
+(2.23e - req.: linux, deb, kde-plasma: 6.6.4, qt: 6.10.2) > debian: sid
 
 <details>
   <summary>🔽older</summary>
