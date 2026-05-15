@@ -12,10 +12,10 @@
 
 source: https://github.com/xarblu/kwin-effects-better-blur-dx
 
-# install (debian, sid, Plasma 6.6.4, QT 6.10.2)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.2g_deb/int_better_blur_liquid_1-6_6_4_amd64.deb
+# install (debian, sid, Plasma 6.6.5, QT 6.10.2)
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.2g_deb/int_better_blur_liquid_1-6_6_5_amd64.deb
 > 
-> sudo apt install ./int_better_blur_liquid_1-6_6_4_amd64.deb
+> sudo apt install ./int_better_blur_liquid_1-6_6_5_amd64.deb
 > 
 > wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
 >
