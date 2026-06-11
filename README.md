@@ -88,7 +88,7 @@ source: https://github.com/xarblu/kwin-effects-better-blur-dx
 </details> 
 
 
-# useage
+# usage
 simply 
 1. *dis*able other / common 'blur' & 'transparency' - effects (settings-window)
 2. *en*able 'better blur dx' (settings-window)
