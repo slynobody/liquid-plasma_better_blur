@@ -388,10 +388,8 @@ void BBDX::BlurCache::drawCached(const KWin::RenderViewport &viewport, BBDX::Blu
     read->bind();
 
     /**
-     * KWin's RenderTarget doesn't have an alpha channel
-     * which may cause driver weirdness when trying to blend with it.
-     * Just to be safe mask to never touch the non-existing/uninitialized
-     * alpha component.
+     * KWin's RenderTarget's alpha channel is expected to stay untouched (at 1.0)
+     * else it may cause artifacts when the scene is drawn.
      */
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 
