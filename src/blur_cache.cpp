@@ -388,6 +388,14 @@ void BBDX::BlurCache::drawCached(const KWin::RenderViewport &viewport, BBDX::Blu
     read->bind();
 
     /**
+     * KWin's RenderTarget doesn't have an alpha channel
+     * which may cause driver weirdness when trying to blend with it.
+     * Just to be safe mask to never touch the non-existing/uninitialized
+     * alpha component.
+     */
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+
+    /**
      * modulation is applied to alpha in the shader (i.e. affects GL_SRC_ALPHA)
      * RGB on either side (blur/scene) is *not* pre-multiplied
      * 
@@ -408,6 +416,7 @@ void BBDX::BlurCache::drawCached(const KWin::RenderViewport &viewport, BBDX::Blu
     vbo->draw(GL_TRIANGLES, vboStartScreen(), vertexCount);
 
     glDisable(GL_BLEND);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     KWin::ShaderManager::instance()->popShader();
 }
