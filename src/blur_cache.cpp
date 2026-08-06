@@ -7,6 +7,7 @@
 #include "blur.h"
 #include "settings.hpp"
 #include "utils.h"
+#include "rounded_corners_pass.hpp"
 
 #include <epoxy/gl.h>
 #include <qloggingcategory.h>
@@ -268,6 +269,7 @@ void BBDX::BlurCache::reconfigure() {
 void BBDX::BlurCache::preparePaintData(const KWin::RenderTarget *renderTarget,
                                        const KWin::RenderViewport *viewport,
                                        const KWin::RenderView *view,
+                                       const KWin::WindowPaintData *windowPaintData,
                                        const KWin::EffectWindow *window,
                                        const KWin::Region *dirtyRegion,
                                        KWin::GLFramebuffer *blitFramebuffer,
@@ -288,6 +290,7 @@ void BBDX::BlurCache::preparePaintData(const KWin::RenderTarget *renderTarget,
         .renderTarget = renderTarget,
         .viewport = viewport,
         .view = view,
+        .windowPaintData = windowPaintData,
         .window = window,
         .dirtyRegion = dirtyRegion,
         .backgroundRect = backgroundRect,
@@ -362,6 +365,20 @@ void BBDX::BlurCache::preparePaintData(const KWin::RenderTarget *renderTarget,
 }
 
 void BBDX::BlurCache::drawCached(const KWin::RenderViewport &viewport, BBDX::BlurRenderData &renderInfo, KWin::GLVertexBuffer *vbo, const int vertexCount, const float modulation) const {
+    const auto &cacheEntry = renderInfo.cache.get();
+
+    /**
+     * rounded corners can't be cached because we mask the
+     * cached texture's corners with the background blit's rgb
+     */
+    m_effect->roundedCornersPass()->apply(m_effect->windowManager(),
+                                          *m_paintData.backgroundRect,
+                                          m_paintData.window,
+                                          *m_paintData.windowPaintData,
+                                          vbo,
+                                          this,
+                                          cacheEntry);
+
     // clear early so it applies even on bail
     BBDX::clearGLScissor();
 
@@ -372,16 +389,7 @@ void BBDX::BlurCache::drawCached(const KWin::RenderViewport &viewport, BBDX::Blu
     QMatrix4x4 projectionMatrix = viewport.projectionMatrix();
     projectionMatrix.translate(scaledBackgroundRect.x(), scaledBackgroundRect.y());
 
-    KWin::GLTexture* read;
-    if (const auto &cacheEntry = renderInfo.cache.get()) {
-        read = cacheEntry->cachedTexture();
-        cacheEntry->flushed(m_paintData);
-    } else {
-        // bail if we didn't select or add a cache entry
-        qCritical(BLUR_CACHE) << BBDX::LOG_PREFIX << "drawCached() called without a valid cache entry";
-        KWin::ShaderManager::instance()->popShader();
-        return;
-    }
+    KWin::GLTexture* read = cacheEntry->cachedTexture();
 
     m_texturePass.shader->setUniform(m_texturePass.mvpMatrixLocation, projectionMatrix);
     m_texturePass.shader->setUniform(m_texturePass.modulationLocation, modulation);
@@ -417,6 +425,8 @@ void BBDX::BlurCache::drawCached(const KWin::RenderViewport &viewport, BBDX::Blu
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     KWin::ShaderManager::instance()->popShader();
+
+    cacheEntry->flushed(m_paintData);
 }
 
 void BBDX::BlurCache::drawToCache(BBDX::BlurCacheEntry *cache, KWin::GLVertexBuffer *vbo) const {

@@ -189,6 +189,7 @@ struct BlurCachePaintData {
     const KWin::RenderTarget *renderTarget;
     const KWin::RenderViewport *viewport;
     const KWin::RenderView *view;
+    const KWin::WindowPaintData *windowPaintData;
     const KWin::EffectWindow *window;
     const KWin::Region *dirtyRegion;
     const KWin::Rect *backgroundRect;
@@ -279,6 +280,7 @@ public:
     void preparePaintData(const KWin::RenderTarget *renderTarget,
                           const KWin::RenderViewport *viewport,
                           const KWin::RenderView *view,
+                          const KWin::WindowPaintData *windowPaintData,
                           const KWin::EffectWindow *window,
                           const KWin::Region *dirtyRegion,
                           KWin::GLFramebuffer *blitFramebuffer,

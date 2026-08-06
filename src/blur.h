@@ -255,6 +255,7 @@ private:
 public:
     WindowManager* windowManager() const { return m_windowManager.get(); }
     BlurCache* blurCache() const { return m_blurCache.get(); }
+    RoundedCornersPass* roundedCornersPass() const { return m_roundedCornersPass.get(); }
 };
 
 inline bool BlurEffect::provides(Effect::Feature feature)
