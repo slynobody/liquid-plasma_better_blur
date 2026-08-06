@@ -269,6 +269,7 @@ public:
     BlitMode blitMode() const { return m_blitMode; }
     bool ignoreCache() const { return m_ignoreCache; }
     std::chrono::milliseconds cacheRateLimit() const { return m_cacheRateLimit; }
+    const BlurCachePaintData &paintData() const { return m_paintData; }
 
     /**
      * Prepare the cache for this paint

@@ -54,30 +54,21 @@ void BBDX::RoundedCornersPass::apply(const WindowManager *windowManager,
                                      KWin::GLVertexBuffer *vbo,
                                      const BBDX::BlurCache *blurCache,
                                      BBDX::BlurCacheEntry *cacheEntry) const {
+
         const auto cornerRadius = windowManager->getEffectiveBorderRadius(w);
 
         if (cornerRadius.isNull()) {
-            // without rounded corners swizzle alpha
-            // channel to 1.0 for future reads
-            // as it may contain garbage otherwise (bad blit or whatever)
-            cacheEntry->cachedTexture()->setSwizzle(GL_RED, GL_GREEN, GL_BLUE, GL_ONE);
             return;
         }
         
-        // with rounded corners the shader will properly override the alpha channel
-        cacheEntry->cachedTexture()->setSwizzle(GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA);
-
         KWin::ShaderManager::instance()->pushShader(m_shader.get());
 
-        /**
-         * For caching purposes we keep things in logical coordinates
-         */
-
+        // cache local coordinates
         QMatrix4x4 projectionMatrix;
         projectionMatrix.ortho(QRectF(0.0, 0.0, backgroundRect.width(), backgroundRect.height()));
 
-        // we want to mask the corners of what is already cached
-        const auto &read = cacheEntry->cachedFramebuffer();
+        // read background from the blit
+        const auto &read = blurCache->paintData().blitFramebuffer;
 
         const KWin::RectF transformedRect = KWin::RectF{
             w->frameGeometry().x() + data.xTranslation() / data.xScale(),
@@ -102,7 +93,24 @@ void BBDX::RoundedCornersPass::apply(const WindowManager *windowManager,
 
         read->colorAttachment()->bind();
 
+        /**
+         * Don't actually write alpha because we
+         * might have a texture without that channel
+         */
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+
+        /**
+         * SRC.rgb are background blit pixels
+         * DST.rgb are blurred pixels
+         * SRC.a is 0.0 in the corners that should be clipped, 1.0 inside the window
+         */
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+
         blurCache->drawToCache(cacheEntry, vbo);
+
+        glDisable(GL_BLEND);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
         KWin::ShaderManager::instance()->popShader();
 }
