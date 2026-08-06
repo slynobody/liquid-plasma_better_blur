@@ -231,7 +231,6 @@ std::unique_ptr<BBDX::BlurCache> BBDX::BlurCache::create(BBDX::BlurEffect *effec
         return nullptr;
     } else {
         blurCache->m_texturePass.mvpMatrixLocation = blurCache->m_texturePass.shader->uniformLocation("modelViewProjectionMatrix");
-        blurCache->m_texturePass.modulationLocation = blurCache->m_texturePass.shader->uniformLocation("modulation");
     }
 
     return blurCache;
@@ -392,7 +391,6 @@ void BBDX::BlurCache::drawCached(const KWin::RenderViewport &viewport, BBDX::Blu
     KWin::GLTexture* read = cacheEntry->cachedTexture();
 
     m_texturePass.shader->setUniform(m_texturePass.mvpMatrixLocation, projectionMatrix);
-    m_texturePass.shader->setUniform(m_texturePass.modulationLocation, modulation);
     read->bind();
 
     /**
@@ -401,27 +399,17 @@ void BBDX::BlurCache::drawCached(const KWin::RenderViewport &viewport, BBDX::Blu
      */
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 
-    /**
-     * modulation is applied to alpha in the shader (i.e. affects GL_SRC_ALPHA)
-     * RGB on either side (blur/scene) is *not* pre-multiplied
-     * 
-     * ff the shader returns alpha...
-     * ... 1.0 (e.g. opaque window surface)
-     *   -> blend sfactor=1.0, dfactor=0.0
-     *     -> full blur
-     * ... 0.5 (e.g. plasma applauncher animation)
-     *   -> blend sfactor=0.5, dfactor=0.5
-     *     -> mixed blur + scene
-     * ... 0.0 (e.g. within rounded corners)
-     *   -> blend sfactor=0.0, dfactor=1.0
-     *     -> full scene
-     */
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    if (modulation < 1.0) {
+        glEnable(GL_BLEND);
+        glBlendColor(0.0, 0.0, 0.0, modulation);
+        glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+    }
 
     vbo->draw(GL_TRIANGLES, vboStartScreen(), vertexCount);
 
-    glDisable(GL_BLEND);
+    if (modulation < 1.0) {
+        glDisable(GL_BLEND);
+    }
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     KWin::ShaderManager::instance()->popShader();
