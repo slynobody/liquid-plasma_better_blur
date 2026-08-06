@@ -72,8 +72,6 @@ bool BBDX::RoundedCornersPass::drawRounded(const WindowManager *windowManager,
     QMatrix4x4 projectionMatrix = viewport->projectionMatrix();
     projectionMatrix.translate(scaledBackgroundRect->x(), scaledBackgroundRect->y());
 
-    const auto &read = cacheEntry->cachedFramebuffer();
-
     const KWin::RectF transformedRect = KWin::RectF{
         w->frameGeometry().x() + data->xTranslation(),
         w->frameGeometry().y() + data->yTranslation(),
@@ -96,7 +94,7 @@ bool BBDX::RoundedCornersPass::drawRounded(const WindowManager *windowManager,
 #endif
     m_shader->setUniform(m_cornerRadiusLocation, cornerRadius.scaled(viewport->scale()).rounded().toVector());
 
-    read->colorAttachment()->bind();
+    cacheEntry->cachedTexture()->bind();
 
     /**
      * src.rgb is passed through

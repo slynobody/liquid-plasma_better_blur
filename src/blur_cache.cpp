@@ -395,10 +395,9 @@ void BBDX::BlurCache::drawCached(const KWin::RenderViewport &viewport, BBDX::Blu
         QMatrix4x4 projectionMatrix = viewport.projectionMatrix();
         projectionMatrix.translate(scaledBackgroundRect.x(), scaledBackgroundRect.y());
 
-        KWin::GLTexture* read = cacheEntry->cachedTexture();
-
         m_texturePass.shader->setUniform(m_texturePass.mvpMatrixLocation, projectionMatrix);
-        read->bind();
+
+        cacheEntry->cachedTexture()->bind();
 
         if (modulation < 1.0) {
             glEnable(GL_BLEND);
