@@ -364,51 +364,62 @@ void BBDX::BlurCache::preparePaintData(const KWin::RenderTarget *renderTarget,
 }
 
 void BBDX::BlurCache::drawCached(const KWin::RenderViewport &viewport, BBDX::BlurRenderData &renderInfo, KWin::GLVertexBuffer *vbo, const int vertexCount, const float modulation) const {
-    // clear early so it applies even on bail
+    /**
+     * Common setup
+     */
+
+    // Our scissor helper currently isn't implemented
+    // for RenderTarget's offsets (expects topLeft at 0,0)
     BBDX::clearGLScissor();
+
+    // Don't write alpha because KWin's RenderTarget texture might not have it
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 
     const auto &cacheEntry = renderInfo.cache.get();
 
     /**
-     * rounded corners can't be cached because we mask the
-     * cached texture's corners with the background blit's rgb
+     * Rounded corners on-screen paint
      */
     if (m_effect->roundedCornersPass()->drawRounded(m_effect->windowManager(), this, cacheEntry, vbo, vertexCount, modulation)) {
-        return;
+        goto done;
     }
-
-    const auto &scaledBackgroundRect = *m_paintData.scaledBackgroundRect;
-
-    KWin::ShaderManager::instance()->pushShader(m_texturePass.shader.get());
-
-    QMatrix4x4 projectionMatrix = viewport.projectionMatrix();
-    projectionMatrix.translate(scaledBackgroundRect.x(), scaledBackgroundRect.y());
-
-    KWin::GLTexture* read = cacheEntry->cachedTexture();
-
-    m_texturePass.shader->setUniform(m_texturePass.mvpMatrixLocation, projectionMatrix);
-    read->bind();
 
     /**
-     * KWin's RenderTarget's alpha channel is expected to stay untouched (at 1.0)
-     * else it may cause artifacts when the scene is drawn.
+     * Regular "squared" on-screen paint
      */
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+    {
+        const auto &scaledBackgroundRect = *m_paintData.scaledBackgroundRect;
 
-    if (modulation < 1.0) {
-        glEnable(GL_BLEND);
-        glBlendColor(0.0, 0.0, 0.0, modulation);
-        glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+        KWin::ShaderManager::instance()->pushShader(m_texturePass.shader.get());
+
+        QMatrix4x4 projectionMatrix = viewport.projectionMatrix();
+        projectionMatrix.translate(scaledBackgroundRect.x(), scaledBackgroundRect.y());
+
+        KWin::GLTexture* read = cacheEntry->cachedTexture();
+
+        m_texturePass.shader->setUniform(m_texturePass.mvpMatrixLocation, projectionMatrix);
+        read->bind();
+
+        if (modulation < 1.0) {
+            glEnable(GL_BLEND);
+            glBlendColor(0.0, 0.0, 0.0, modulation);
+            glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+        }
+
+        vbo->draw(GL_TRIANGLES, vboStartScreen(), vertexCount);
+
+        if (modulation < 1.0) {
+            glDisable(GL_BLEND);
+        }
+
+        KWin::ShaderManager::instance()->popShader();
     }
 
-    vbo->draw(GL_TRIANGLES, vboStartScreen(), vertexCount);
-
-    if (modulation < 1.0) {
-        glDisable(GL_BLEND);
-    }
+done:
+    /**
+     * Common cleanup
+     */
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-
-    KWin::ShaderManager::instance()->popShader();
 
     cacheEntry->flushed(m_paintData);
 }

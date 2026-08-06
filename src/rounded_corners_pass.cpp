@@ -99,12 +99,6 @@ bool BBDX::RoundedCornersPass::drawRounded(const WindowManager *windowManager,
     read->colorAttachment()->bind();
 
     /**
-     * Don't actually write alpha because we
-     * might have a texture without that channel
-     */
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
-
-    /**
      * src.rgb is passed through
      * src.a is modulation * rounded-box-alpha
      */
@@ -114,7 +108,6 @@ bool BBDX::RoundedCornersPass::drawRounded(const WindowManager *windowManager,
     vbo->draw(GL_TRIANGLES, blurCache->vboStartScreen(), vertexCount);
 
     glDisable(GL_BLEND);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     KWin::ShaderManager::instance()->popShader();
 
