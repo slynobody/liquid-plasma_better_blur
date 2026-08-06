@@ -1,5 +1,6 @@
 #pragma once
 
+#include "blur_cache.hpp"
 #include "kwin_compat.hpp"
 #include "window_manager.hpp"
 
@@ -34,6 +35,7 @@ class RoundedCornersPass {
 private:
     std::unique_ptr<KWin::GLShader> m_shader{nullptr};
     int m_mvpMatrixLocation;
+    int m_modulationLocation;
     int m_boxLocation;
     int m_cornerRadiusLocation;
 
@@ -47,18 +49,16 @@ public:
     static std::unique_ptr<RoundedCornersPass> create();
 
     /**
-     * Apply rounded corners by setting their alpha channel to 0.0
+     * Draw the cached texture with rounded corners to the screen
      *
-     * and set texture swizzle accordingly
-     * (rounded -> alpha=alpha; square -> alpha=1.0)
+     * returns true if drawn, else false (meaning it should be drawn normally)
      */
-    void apply(const BBDX::WindowManager *windowManager,
-               const KWin::Rect &backgroundRect,
-               const KWin::EffectWindow *w,
-               const KWin::WindowPaintData &data,
-               KWin::GLVertexBuffer *vbo,
-               const BBDX::BlurCache *blurCache,
-               BBDX::BlurCacheEntry *cacheEntry) const;
+    bool drawRounded(const BBDX::WindowManager *windowManager,
+                     const BBDX::BlurCache *blurCache,
+                     BBDX::BlurCacheEntry *cacheEntry,
+                     KWin::GLVertexBuffer *vbo,
+                     const int vertexCount,
+                     const float modulation) const;
 };
 
 } // namespace BBDX

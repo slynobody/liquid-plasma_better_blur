@@ -40,6 +40,7 @@ std::unique_ptr<BBDX::RoundedCornersPass> BBDX::RoundedCornersPass::create() {
         return nullptr;
     } else {
         pass->m_mvpMatrixLocation = pass->m_shader->uniformLocation("modelViewProjectionMatrix");
+        pass->m_modulationLocation = pass->m_shader->uniformLocation("modulation");
         pass->m_boxLocation = pass->m_shader->uniformLocation("box");
         pass->m_cornerRadiusLocation = pass->m_shader->uniformLocation("cornerRadius");
     }
@@ -47,70 +48,75 @@ std::unique_ptr<BBDX::RoundedCornersPass> BBDX::RoundedCornersPass::create() {
     return pass;
 }
 
-void BBDX::RoundedCornersPass::apply(const WindowManager *windowManager,
-                                     const KWin::Rect &backgroundRect,
-                                     const KWin::EffectWindow *w,
-                                     const KWin::WindowPaintData &data,
-                                     KWin::GLVertexBuffer *vbo,
-                                     const BBDX::BlurCache *blurCache,
-                                     BBDX::BlurCacheEntry *cacheEntry) const {
+bool BBDX::RoundedCornersPass::drawRounded(const WindowManager *windowManager,
+                                           const BBDX::BlurCache *blurCache,
+                                           BBDX::BlurCacheEntry *cacheEntry,
+                                           KWin::GLVertexBuffer *vbo,
+                                           const int vertexCount,
+                                           const float modulation) const {
 
-        const auto cornerRadius = windowManager->getEffectiveBorderRadius(w);
+    const auto w = blurCache->paintData().window;
+    const auto cornerRadius = windowManager->getEffectiveBorderRadius(w);
 
-        if (cornerRadius.isNull()) {
-            return;
-        }
-        
-        KWin::ShaderManager::instance()->pushShader(m_shader.get());
+    if (cornerRadius.isNull()) {
+        return false;
+    }
 
-        // cache local coordinates
-        QMatrix4x4 projectionMatrix;
-        projectionMatrix.ortho(QRectF(0.0, 0.0, backgroundRect.width(), backgroundRect.height()));
+    const auto data = blurCache->paintData().windowPaintData;
+    const auto scaledBackgroundRect = blurCache->paintData().scaledBackgroundRect;
+    const auto viewport = blurCache->paintData().viewport;
 
-        // read background from the blit
-        const auto &read = blurCache->paintData().blitFramebuffer;
+    KWin::ShaderManager::instance()->pushShader(m_shader.get());
 
-        const KWin::RectF transformedRect = KWin::RectF{
-            w->frameGeometry().x() + data.xTranslation() / data.xScale(),
-            w->frameGeometry().y() + data.yTranslation() / data.yScale(),
-            w->frameGeometry().width(),
-            w->frameGeometry().height(),
-        };
+    // we're drawing on screen here
+    QMatrix4x4 projectionMatrix = viewport->projectionMatrix();
+    projectionMatrix.translate(scaledBackgroundRect->x(), scaledBackgroundRect->y());
+
+    const auto &read = cacheEntry->cachedFramebuffer();
+
+    const KWin::RectF transformedRect = KWin::RectF{
+        w->frameGeometry().x() + data->xTranslation(),
+        w->frameGeometry().y() + data->yTranslation(),
+        w->frameGeometry().width() * data->xScale(),
+        w->frameGeometry().height() * data->yScale(),
+    };
 
 #if KWIN_VERSION < KWIN_VERSION_CODE(6, 6, 90)
-        const KWin::RectF box{KWin::snapToPixelGridF(transformedRect).translated(-backgroundRect.topLeft())};
+    const KWin::RectF box{KWin::snapToPixelGridF(KWin::scaledRect(transformedRect, viewport->scale())).translated(-scaledBackgroundRect->topLeft())};
 #else
-        const KWin::RectF box{transformedRect.rounded().translated(-backgroundRect.topLeft())};
+    const KWin::RectF box{transformedRect.scaled(viewport->scale()).rounded().translated(-scaledBackgroundRect->topLeft())};
 #endif
 
-        m_shader->setUniform(m_mvpMatrixLocation, projectionMatrix);
+    m_shader->setUniform(m_mvpMatrixLocation, projectionMatrix);
+    m_shader->setUniform(m_modulationLocation, modulation);
 #if KWIN_VERSION < KWIN_VERSION_CODE(6, 6, 90)
-        m_shader->setUniform(m_boxLocation, QVector4D(box.x() + box.width() * 0.5, box.y() + box.height() * 0.5, box.width() * 0.5, box.height() * 0.5));
+    m_shader->setUniform(m_boxLocation, QVector4D(box.x() + box.width() * 0.5, box.y() + box.height() * 0.5, box.width() * 0.5, box.height() * 0.5));
 #else
-        m_shader->setUniform(m_boxLocation, QVector4D(box.horizontalCenter(), box.verticalCenter(), box.width() * 0.5, box.height() * 0.5));
+    m_shader->setUniform(m_boxLocation, QVector4D(box.horizontalCenter(), box.verticalCenter(), box.width() * 0.5, box.height() * 0.5));
 #endif
-        m_shader->setUniform(m_cornerRadiusLocation, cornerRadius.toVector());
+    m_shader->setUniform(m_cornerRadiusLocation, cornerRadius.scaled(viewport->scale()).rounded().toVector());
 
-        read->colorAttachment()->bind();
+    read->colorAttachment()->bind();
 
-        /**
-         * Don't actually write alpha because we
-         * might have a texture without that channel
-         */
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+    /**
+     * Don't actually write alpha because we
+     * might have a texture without that channel
+     */
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 
-        /**
-         * SRC.rgb are background blit pixels
-         * DST.rgb are blurred pixels
-         * SRC.a is 0.0 in the corners that should be clipped, 1.0 inside the window
-         */
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+    /**
+     * src.rgb is passed through
+     * src.a is modulation * rounded-box-alpha
+     */
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        blurCache->drawToCache(cacheEntry, vbo);
+    vbo->draw(GL_TRIANGLES, blurCache->vboStartScreen(), vertexCount);
 
-        glDisable(GL_BLEND);
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDisable(GL_BLEND);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-        KWin::ShaderManager::instance()->popShader();
+    KWin::ShaderManager::instance()->popShader();
+
+    return true;
 }

@@ -364,22 +364,18 @@ void BBDX::BlurCache::preparePaintData(const KWin::RenderTarget *renderTarget,
 }
 
 void BBDX::BlurCache::drawCached(const KWin::RenderViewport &viewport, BBDX::BlurRenderData &renderInfo, KWin::GLVertexBuffer *vbo, const int vertexCount, const float modulation) const {
+    // clear early so it applies even on bail
+    BBDX::clearGLScissor();
+
     const auto &cacheEntry = renderInfo.cache.get();
 
     /**
      * rounded corners can't be cached because we mask the
      * cached texture's corners with the background blit's rgb
      */
-    m_effect->roundedCornersPass()->apply(m_effect->windowManager(),
-                                          *m_paintData.backgroundRect,
-                                          m_paintData.window,
-                                          *m_paintData.windowPaintData,
-                                          vbo,
-                                          this,
-                                          cacheEntry);
-
-    // clear early so it applies even on bail
-    BBDX::clearGLScissor();
+    if (m_effect->roundedCornersPass()->drawRounded(m_effect->windowManager(), this, cacheEntry, vbo, vertexCount, modulation)) {
+        return;
+    }
 
     const auto &scaledBackgroundRect = *m_paintData.scaledBackgroundRect;
 
