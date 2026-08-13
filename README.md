@@ -8,7 +8,11 @@
 ![vokoscreenNG-2025-12-04_16-21-39-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/26c3578d-b37d-495d-9e78-0d6f556c68ab)
 
 forked from: https://github.com/xarblu/kwin-effects-better-blur-dx
+
 *precompiled* for easy installation
+
+experimental: added new features (border hightlight, mouse highlight) > 2.6
+
 
 # install (debian, sid, Plasma 6.7.4, QT 6.10.2)
 > wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.6/int_better_blur_liquid_2-6-6_7_4_amd64.deb
