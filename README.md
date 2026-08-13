@@ -1,21 +1,19 @@
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?&logo=buy-me-a-coffee&logoColor=black)](https://ko-fi.com/integr)
 
-# liquid better blur (linux, interface-effect, *precompiled*)
-<img width="262" height="114" alt="screenshot-20250908-1902001" src="https://github.com/user-attachments/assets/f3bc40d7-e854-4ae4-8c4f-f2a8738df662" />
-<img width="262" height="114" alt="screenshot" src="https://github.com/user-attachments/assets/6d799362-bd51-43f9-9d80-1ca331876460" />
+# better blur dx+ (linux, interface-effect, *precompiled*)
+<img width="468" height="216" alt="ezgif-2791664fde5198af" src="https://github.com/user-attachments/assets/1b245ea7-5e8f-4c0f-9cd5-7d6458cf8d19" />
 
-## dynamic "liquid glassy" ui-effect
+## dynamic "liquid" ui-effect for kde plasma
 ### ('better-blur dx' plasma-extension,)
 ![vokoscreenNG-2025-12-04_16-21-39-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/26c3578d-b37d-495d-9e78-0d6f556c68ab)
 
+forked from: https://github.com/xarblu/kwin-effects-better-blur-dx
 *precompiled* for easy installation
 
-source: https://github.com/xarblu/kwin-effects-better-blur-dx
-
 # install (debian, sid, Plasma 6.7.4, QT 6.10.2)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/experimental/int_better_blur_liquid_1-6_7_4+_amd64.deb
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.6/int_better_blur_liquid_2-6-6_7_4_amd64.deb
 > 
-> sudo apt install ./int_better_blur_liquid_1-6_7_4+_amd64.deb
+> sudo apt install ./int_better_blur_liquid_2-6-6_7_4_amd64.deb
 > 
 > wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
 >
