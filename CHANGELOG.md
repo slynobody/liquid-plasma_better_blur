@@ -1,6 +1,11 @@
 # DEV
 Things not in any tagged release yet:
 
+# 2.6
+- added border-highlight-feature (with own tab)
+- added mouse-highlight-feature (as part of border-highligth)
+- slightly changed logic for rounded corners
+
 # 2.5.1
 
 ### Bug Fixes:

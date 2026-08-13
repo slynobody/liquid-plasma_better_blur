@@ -32,7 +32,7 @@ BlurEffectConfig::BlurEffectConfig(QObject *parent, const KPluginMetaData &data)
     if (about.open(QIODevice::ReadOnly)) {
         const auto html = about.readAll()
             .replace("${version}", ABOUT_VERSION_STRING)
-            .replace("${repo}", "https://github.com/xarblu/kwin-effects-better-blur-dx");
+            .replace("${repo}", "https://github.com/slynobody/liquid-plasma_better_blur");
         ui.aboutText->setHtml(html);
     }
 
@@ -115,6 +115,34 @@ void BlurEffectConfig::setupSpinboxSliderSync() {
             if (ui.spinboxContrast->value() != value) ui.spinboxContrast->setValue(value); });
     connect(ui.spinboxContrast, &QSpinBox::valueChanged, this, [this](int value) {
             if (ui.kcfg_Contrast->value() != value) ui.kcfg_Contrast->setValue(value); });
+
+    // Border Highlight Strength
+    ui.spinboxBorderHighlightStrength->setValue(ui.kcfg_BorderHighlightStrength->value());
+    connect(ui.kcfg_BorderHighlightStrength, &QSlider::valueChanged, this, [this](int value) {
+            if (ui.spinboxBorderHighlightStrength->value() != value) ui.spinboxBorderHighlightStrength->setValue(value); });
+    connect(ui.spinboxBorderHighlightStrength, &QSpinBox::valueChanged, this, [this](int value) {
+            if (ui.kcfg_BorderHighlightStrength->value() != value) ui.kcfg_BorderHighlightStrength->setValue(value); });
+
+    // Border Highlight Width
+    ui.spinboxBorderHighlightWidth->setValue(ui.kcfg_BorderHighlightWidth->value());
+    connect(ui.kcfg_BorderHighlightWidth, &QSlider::valueChanged, this, [this](int value) {
+            if (ui.spinboxBorderHighlightWidth->value() != value) ui.spinboxBorderHighlightWidth->setValue(value); });
+    connect(ui.spinboxBorderHighlightWidth, &QSpinBox::valueChanged, this, [this](int value) {
+            if (ui.kcfg_BorderHighlightWidth->value() != value) ui.kcfg_BorderHighlightWidth->setValue(value); });
+
+    // Border Highlight Corner Radius
+    ui.spinboxBorderHighlightCornerRadius->setValue(ui.kcfg_BorderHighlightCornerRadius->value());
+    connect(ui.kcfg_BorderHighlightCornerRadius, &QSlider::valueChanged, this, [this](int value) {
+            if (ui.spinboxBorderHighlightCornerRadius->value() != value) ui.spinboxBorderHighlightCornerRadius->setValue(value); });
+    connect(ui.spinboxBorderHighlightCornerRadius, &QSpinBox::valueChanged, this, [this](int value) {
+            if (ui.kcfg_BorderHighlightCornerRadius->value() != value) ui.kcfg_BorderHighlightCornerRadius->setValue(value); });
+
+    // Border Highlight Mouse Strength
+    ui.spinboxBorderHighlightMouseStrength->setValue(ui.kcfg_BorderHighlightMouseStrength->value());
+    connect(ui.kcfg_BorderHighlightMouseStrength, &QSlider::valueChanged, this, [this](int value) {
+            if (ui.spinboxBorderHighlightMouseStrength->value() != value) ui.spinboxBorderHighlightMouseStrength->setValue(value); });
+    connect(ui.spinboxBorderHighlightMouseStrength, &QSpinBox::valueChanged, this, [this](int value) {
+            if (ui.kcfg_BorderHighlightMouseStrength->value() != value) ui.kcfg_BorderHighlightMouseStrength->setValue(value); });
 }
 
 void BlurEffectConfig::setupConstraints() {

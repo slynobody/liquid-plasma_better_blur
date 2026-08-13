@@ -131,6 +131,9 @@ BlurEffect::BlurEffect()
 {
     BlurConfig::instance(effects->config());
     ensureResources();
+    
+    // Initialize mouse tracking
+    m_lastMousePosition = effects->cursorPos();
 
     m_onscreenPass.shader = ShaderManager::instance()->generateShaderFromFile(ShaderTrait::MapTexture,
                                                                               BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/vertex.vert"),
@@ -703,6 +706,8 @@ void BlurEffect::prePaintScreen(ScreenPrePaintData &data)
     m_currentView = data.view;
 #endif
 
+
+
     m_blurCache->flushAccumulatedDirtyRegions(data);
 
 #if KWIN_VERSION < KWIN_VERSION_CODE(6, 6, 90)
@@ -1174,6 +1179,22 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
 
     vbo->bindArrays();
 
+    // BBDX: Check if we should bypass cache for mouse highlight responsiveness
+    const QPointF currentMousePos = effects->cursorPos();
+    const bool mouseMoved = (currentMousePos - m_lastMousePosition).manhattanLength() > 0;
+    m_lastMousePosition = currentMousePos;
+    
+    auto config = BBDX::BlurConfig::self();
+    const bool noCacheForMouse = config && config->borderHighlightNoCache();
+    const bool mouseHighlightActive = m_refractionPass && 
+                                       m_refractionPass->borderHighlightEnabled() && 
+                                       m_refractionPass->borderHighlightMouseEnabled();
+    
+    if (noCacheForMouse && mouseHighlightActive && mouseMoved) {
+        // Force cache flush by flushing the cache entry
+        renderInfo.cache->flush("Mouse highlight: cache bypassed for responsiveness");
+    }
+
     // BBDX: rate limited
     if (!renderInfo.cache->isFlushing()) {
         const float modulation = opacity * opacity;
@@ -1303,6 +1324,24 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
 
         const QVector2D halfpixel(0.5 / read->colorAttachment()->width(),
                                   0.5 / read->colorAttachment()->height());
+
+        // Update mouse position for mouse highlight effect
+        if (m_refractionPass) {
+            const QPointF cursorPos = effects->cursorPos();
+            // Convert cursor position to refraction rectangle space
+            // backgroundRect is the area being refracted in screen coordinates
+            QVector2D mousePosInRefraction(
+                static_cast<float>(cursorPos.x() - backgroundRect.x()),
+                static_cast<float>(cursorPos.y() - backgroundRect.y())
+            );
+            // Normalize to 0-1 range
+            // Flip Y: screen coords have Y down, but we want mouse at top to affect top of window
+            if (backgroundRect.width() > 0 && backgroundRect.height() > 0) {
+                mousePosInRefraction.setX(mousePosInRefraction.x() / backgroundRect.width());
+                mousePosInRefraction.setY(1.0f - mousePosInRefraction.y() / backgroundRect.height());
+            }
+            m_refractionPass->setMousePosition(mousePosInRefraction);
+        }
 
         if (!m_refractionPass->setParameters(projectionMatrix,
                                              colorMatrix,

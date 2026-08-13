@@ -84,5 +84,30 @@ class3</default>
         <entry name="BlurCacheRateLimit" type="Int">
             <default>33</default>
         </entry>
+        <!-- Border Highlight -->
+        <entry name="BorderHighlightEnabled" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="BorderHighlightStrength" type="Int">
+            <default>50</default>
+        </entry>
+        <entry name="BorderHighlightColor" type="Color">
+            <default>#ffffff</default>
+        </entry>
+        <entry name="BorderHighlightWidth" type="Int">
+            <default>2</default>
+        </entry>
+        <entry name="BorderHighlightMouseEnabled" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="BorderHighlightMouseStrength" type="Int">
+            <default>50</default>
+        </entry>
+        <entry name="BorderHighlightCornerRadius" type="Int">
+            <default>0</default>
+        </entry>
+        <entry name="BorderHighlightNoCache" type="Bool">
+            <default>false</default>
+        </entry>
     </group>
 </kcfg>

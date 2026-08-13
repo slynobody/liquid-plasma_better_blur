@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
+    <width>490</width>
     <height>240</height>
    </rect>
   </property>
@@ -861,6 +861,283 @@
          </property>
          <property name="maximum">
           <number>1000</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget">
+      <attribute name="title">
+       <string>Border Highlight</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_BorderHighlight">
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelBorderHighlightEnabled">
+         <property name="text">
+          <string>Enable Border Highlight:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QCheckBox" name="kcfg_BorderHighlightEnabled">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelBorderHighlightColor">
+         <property name="text">
+          <string>Highlight Color:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="KColorButton" name="kcfg_BorderHighlightColor">
+         <property name="alphaChannelEnabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="labelBorderHighlightStrength">
+         <property name="text">
+          <string>Strength:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <layout class="QHBoxLayout" name="sliderBorderHighlightStrength">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_BorderStrength">
+           <item>
+            <widget class="QSlider" name="kcfg_BorderHighlightStrength">
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="singleStep">
+              <number>5</number>
+             </property>
+             <property name="pageStep">
+              <number>10</number>
+             </property>
+             <property name="value">
+              <number>50</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="tickPosition">
+              <enum>QSlider::TickPosition::TicksBelow</enum>
+             </property>
+             <property name="tickInterval">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_BorderStrength">
+             <item>
+              <widget class="QLabel" name="labelBorderHighlightLight">
+               <property name="text">
+                <string>Transparent</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="labelBorderHighlightStrong">
+               <property name="text">
+                <string>Opaque</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinboxBorderHighlightStrength">
+           <property name="suffix">
+            <string> %</string>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="labelBorderHighlightWidth">
+         <property name="text">
+          <string>Width:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <layout class="QHBoxLayout" name="sliderBorderHighlightWidth">
+         <item>
+          <widget class="QSlider" name="kcfg_BorderHighlightWidth">
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>20</number>
+           </property>
+           <property name="singleStep">
+            <number>1</number>
+           </property>
+           <property name="pageStep">
+            <number>1</number>
+           </property>
+           <property name="value">
+            <number>2</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TickPosition::TicksBelow</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinboxBorderHighlightWidth">
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>20</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="labelBorderHighlightCornerRadius">
+         <property name="text">
+          <string>Corner Radius:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <layout class="QHBoxLayout" name="sliderBorderHighlightCornerRadius">
+         <item>
+          <widget class="QSlider" name="kcfg_BorderHighlightCornerRadius">
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>200</number>
+           </property>
+           <property name="singleStep">
+            <number>1</number>
+           </property>
+           <property name="pageStep">
+            <number>7</number>
+           </property>
+           <property name="value">
+            <number>0</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TicksBelow</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinboxBorderHighlightCornerRadius">
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>200</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="labelBorderHighlightMouseEnabled">
+         <property name="text">
+          <string>Mouse Highlight: (best refresh-exp: use with dynamic wallpaper!)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QCheckBox" name="kcfg_BorderHighlightMouseEnabled">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="labelBorderHighlightMouseStrength">
+         <property name="text">
+          <string>Mouse Highlight Strength:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <layout class="QHBoxLayout" name="sliderBorderHighlightMouseStrength">
+         <item>
+          <widget class="QSlider" name="kcfg_BorderHighlightMouseStrength">
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="singleStep">
+            <number>5</number>
+           </property>
+           <property name="pageStep">
+            <number>10</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Orientation::Horizontal</enum>
+           </property>
+           <property name="tickPosition">
+            <enum>QSlider::TickPosition::TicksBelow</enum>
+           </property>
+           <property name="tickInterval">
+            <number>10</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spinboxBorderHighlightMouseStrength">
+           <property name="suffix">
+            <string> %</string>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="7" column="0" colspan="2">
+        <widget class="QCheckBox" name="kcfg_BorderHighlightNoCache">
+         <property name="text">
+          <string>Disable cache for mouse highlight (more responsive, lower performance)</string>
          </property>
         </widget>
        </item>

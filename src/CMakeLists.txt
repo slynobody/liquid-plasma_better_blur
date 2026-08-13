@@ -1,3 +1,8 @@
+project(kwin_better_blur_dx+
+    VERSION 2.6
+    LANGUAGES CXX
+)
+
 add_subdirectory(kcm)
 
 set(better_blur_dx_SOURCES

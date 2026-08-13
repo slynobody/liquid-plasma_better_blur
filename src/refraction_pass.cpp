@@ -45,6 +45,12 @@ std::unique_ptr<BBDX::RefractionPass> BBDX::RefractionPass::create() {
         pass->m_refractionRGBFringingLocation = pass->m_shader->uniformLocation("refractionRGBFringing");
         pass->m_refractionTextureRepeatModeLocation = pass->m_shader->uniformLocation("refractionTextureRepeatMode");
         pass->m_refractionModeLocation = pass->m_shader->uniformLocation("refractionMode");
+        // border highlight parameters
+        pass->m_borderHighlightColorLocation = pass->m_shader->uniformLocation("borderHighlightColor");
+        pass->m_borderHighlightWidthLocation = pass->m_shader->uniformLocation("borderHighlightWidth");
+        pass->m_borderHighlightCornerRadiusLocation = pass->m_shader->uniformLocation("borderHighlightCornerRadius");
+        pass->m_borderHighlightMouseLocation = pass->m_shader->uniformLocation("borderHighlightMouse");
+        pass->m_borderHighlightMouseStrengthLocation = pass->m_shader->uniformLocation("borderHighlightMouseStrength");
     }
 
     return pass;
@@ -59,8 +65,9 @@ void BBDX::RefractionPass::reconfigure() {
         return;
     }
 
-    // mark enabled if strength > 0
-    m_enabled = config->refractionStrength() > 0;
+    // mark enabled if strength > 0 OR if border highlight is enabled
+    // (border highlight is integrated into refraction shader)
+    m_enabled = (config->refractionStrength() > 0) || config->borderHighlightEnabled();
 
     // scaled up by 10.0
     constexpr double scaleEdgeSizePixels{10.0};
@@ -90,6 +97,15 @@ void BBDX::RefractionPass::reconfigure() {
     // integer mode selectors
     m_textureRepeatMode = config->refractionTextureRepeatMode();
     m_mode = config->refractionMode();
+
+    // border highlight settings
+    m_borderHighlightEnabled = config->borderHighlightEnabled();
+    m_borderHighlightColor = config->borderHighlightColor();
+    m_borderHighlightWidth = config->borderHighlightWidth();
+    m_borderHighlightStrength = config->borderHighlightStrength();
+    m_borderHighlightMouseEnabled = config->borderHighlightMouseEnabled();
+    m_borderHighlightMouseStrength = config->borderHighlightMouseStrength();
+    m_borderHighlightCornerRadius = config->borderHighlightCornerRadius();
 }
 
 bool BBDX::RefractionPass::pushShader() const {
@@ -128,6 +144,29 @@ bool BBDX::RefractionPass::setParameters(const QMatrix4x4 &projectionMatrix,
     m_shader->setUniform(m_refractionRGBFringingLocation, static_cast<float>(m_RGBFringing));
     m_shader->setUniform(m_refractionTextureRepeatModeLocation, m_textureRepeatMode);
     m_shader->setUniform(m_refractionModeLocation, m_mode);
+
+    // border highlight parameters
+    // Always set these uniforms so the shader has the correct values
+    // (border highlight may be toggled on/off without restarting)
+    if (m_borderHighlightColorLocation != -1 && 
+        m_borderHighlightWidthLocation != -1 &&
+        m_borderHighlightMouseLocation != -1 &&
+        m_borderHighlightMouseStrengthLocation != -1) {
+        
+        // Calculate opacity from strength (0-100 -> 0.0-1.0)
+        const float opacity = static_cast<float>(m_borderHighlightStrength) / 100.0f;
+        const QVector4D highlightColor(
+            static_cast<float>(m_borderHighlightColor.redF()),
+            static_cast<float>(m_borderHighlightColor.greenF()),
+            static_cast<float>(m_borderHighlightColor.blueF()),
+            m_borderHighlightEnabled ? opacity : 0.0f  // Set alpha to 0 if disabled
+        );
+        m_shader->setUniform(m_borderHighlightColorLocation, highlightColor);
+        m_shader->setUniform(m_borderHighlightWidthLocation, static_cast<float>(m_borderHighlightWidth));
+        m_shader->setUniform(m_borderHighlightCornerRadiusLocation, static_cast<float>(m_borderHighlightCornerRadius));
+        m_shader->setUniform(m_borderHighlightMouseLocation, m_mousePosition);
+        m_shader->setUniform(m_borderHighlightMouseStrengthLocation, static_cast<float>(m_borderHighlightMouseEnabled ? m_borderHighlightMouseStrength : 0) / 100.0f);
+    }
 
     return true;
 }

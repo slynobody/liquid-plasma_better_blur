@@ -252,6 +252,9 @@ private:
     std::unique_ptr<BBDX::RefractionPass> m_refractionPass{};
     std::unique_ptr<BBDX::RoundedCornersPass> m_roundedCornersPass{};
 
+    // Mouse position tracking for cache invalidation option
+    QPointF m_lastMousePosition{};
+
 public:
     WindowManager* windowManager() const { return m_windowManager.get(); }
     BlurCache* blurCache() const { return m_blurCache.get(); }

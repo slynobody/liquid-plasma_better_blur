@@ -12,6 +12,13 @@ uniform float refractionRGBFringing;
 uniform int refractionTextureRepeatMode;
 uniform int refractionMode; // 0: Basic, 1: Concave
 
+// Border highlight uniforms
+uniform vec4 borderHighlightColor;  // RGBA (alpha = strength)
+uniform float borderHighlightWidth;  // Width in pixels
+uniform float borderHighlightCornerRadius;  // Corner radius in pixels for highlight
+uniform vec2 borderHighlightMouse;  // Mouse position in screen coordinates (0-1)
+uniform float borderHighlightMouseStrength;  // Mouse highlight strength (0-1)
+
 varying vec2 uv;
 
 vec2 applyTextureRepeatMode(vec2 coord)
@@ -154,4 +161,58 @@ void main(void)
     }
 
     gl_FragColor = sum * colorMatrix;
+
+    // === BORDER HIGHLIGHT INTEGRATION ===
+    // Apply highlight at window boundary
+    
+    vec2 halfRefractionRectSizeLocal = 0.5 * refractionRectSize;
+    vec2 positionLocal = uv * refractionRectSize - halfRefractionRectSizeLocal.xy;
+    
+    // Use the border highlight corner radius (defaults to 0 for sharp corners)
+    float highlightCornerRadius = borderHighlightCornerRadius;
+    
+    // Calculate distance from highlight boundary
+    float distFromEdge = roundedRectangleDist(positionLocal, halfRefractionRectSizeLocal, highlightCornerRadius);
+    float inside = -distFromEdge; // Positive when inside
+    
+    // Calculate outward-facing normal for lighting
+    vec2 q = abs(positionLocal) - halfRefractionRectSizeLocal + highlightCornerRadius;
+    vec2 qc = max(q, 0.0);
+    float ql = length(qc);
+    vec2 outNorm = (ql > 0.001)
+        ? qc / ql
+        : (q.x > q.y ? vec2(1.0, 0.0) : vec2(0.0, 1.0));
+    outNorm = outNorm * sign(positionLocal + vec2(0.0001));
+    
+    // Rim lighting calculation
+    float band = max(borderHighlightWidth, 1.0);
+    float rim = exp(-inside * (3.0 / band)) * smoothstep(0.0, 2.0, inside);
+    
+    // Base highlight intensity (removed angular weight for more uniform highlight on all sides)
+    float intensity = rim * borderHighlightColor.a;
+    
+    // === MOUSE HIGHLIGHT EFFECT ===
+    // Calculate distance from mouse position to current fragment
+    // mouse position is in screen coordinates, need to convert uv to screen space
+    vec2 mousePosScreen = borderHighlightMouse * refractionRectSize;
+    vec2 fragPosScreen = uv * refractionRectSize;
+    
+    // Calculate distance from fragment to mouse (normalized by window size)
+    float mouseDist = length(fragPosScreen - mousePosScreen);
+    float maxDist = length(refractionRectSize) * 0.5;
+    float normalizedMouseDist = clamp(mouseDist / maxDist, 0.0, 1.0);
+    
+    // Mouse proximity effect: brighter near mouse, dimmer far away
+    // Use smooth falloff that's more sensitive at closer distances
+    // Lower threshold: effect starts stronger and fades more gradually
+    float mouseProximity = borderHighlightMouseStrength > 0.0 ? 
+        smoothstep(1.0, 0.0, normalizedMouseDist) : 0.0;
+    
+    // Combine base highlight with mouse effect
+    // Increase multiplier for stronger effect at default strength
+    float finalIntensity = intensity * (1.0 + mouseProximity * borderHighlightMouseStrength * 16.0);
+    
+    // Blend highlight with refracted color
+    vec4 highlight = vec4(borderHighlightColor.rgb, 1.0);
+    gl_FragColor = mix(gl_FragColor, highlight, clamp(finalIntensity, 0.0, 0.95));
 }
