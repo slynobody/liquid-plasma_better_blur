@@ -70,38 +70,7 @@ new features
 > kcmshell6 kcm_kwin_effects
 
 </details>
- 
- # install (arch, plasma 6.7.2, QT 6.10.2)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/experimental/betterblur_liquid_kde6-1_2.4a-1-x86_64.pkg.tar.zst
-> 
-> sudo pacman -U ./betterblur_liquid_kde6-1_2.4a-1-x86_64.pkg.tar.zst
-> 
-> wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
->
-> cp ~/.config/kwinrc ~/.config/kwinrc_bu
-> 
-> cat ./defaults > ~/.config/kwinrc
-> 
-> kcmshell6 kcm_kwin_effects
 
-
-<details>
-  <summary>older (Arch)</summary>
-  
- # install (arch, plasma 6.5.4)
-> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1%2C6d_arch/betterblur_liquid_kde6-1.1.6f-1-x86_64.pkg.tar.zst
-> 
-> sudo pacman -U ./betterblur_liquid_kde6-1.1.6f-1-x86_64.pkg.tar.zst
-> 
-> wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
->
-> cp ~/.config/kwinrc ~/.config/kwinrc_bu
-> 
-> cat ./defaults > ~/.config/kwinrc
-> 
-> kcmshell6 kcm_kwin_effects
-> 
-</details> 
 
 ## manual install
 > [!NOTE]
@@ -247,11 +216,45 @@ This effect can be very resource-intensive if you have a lot of windows open. On
 
 Intel GPUs use software cursor by default due to [this bug](https://gitlab.freedesktop.org/drm/intel/-/issues/9571), however it doesn't seem to affect all GPUs.
 
+ 
+ # install (arch, plasma 6.7.2, QT 6.10.2)
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/experimental/betterblur_liquid_kde6-1_2.4a-1-x86_64.pkg.tar.zst
+> 
+> sudo pacman -U ./betterblur_liquid_kde6-1_2.4a-1-x86_64.pkg.tar.zst
+> 
+> wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
+>
+> cp ~/.config/kwinrc ~/.config/kwinrc_bu
+> 
+> cat ./defaults > ~/.config/kwinrc
+> 
+> kcmshell6 kcm_kwin_effects
+
+
+<details>
+  <summary>older (Arch)</summary>
+  
+ # install (arch, plasma 6.5.4)
+> wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/1%2C6d_arch/betterblur_liquid_kde6-1.1.6f-1-x86_64.pkg.tar.zst
+> 
+> sudo pacman -U ./betterblur_liquid_kde6-1.1.6f-1-x86_64.pkg.tar.zst
+> 
+> wget https://raw.githubusercontent.com/slynobody/liquid-plasma_better_blur/refs/heads/main/defaults
+>
+> cp ~/.config/kwinrc ~/.config/kwinrc_bu
+> 
+> cat ./defaults > ~/.config/kwinrc
+> 
+> kcmshell6 kcm_kwin_effects
+> 
+</details> 
+
 # Credits
 - [a-parhom/LightlyShaders](https://github.com/a-parhom/LightlyShaders) - CMakeLists.txt files
 - [taj-ny/kwin-effects-forceblur](https://github.com/taj-ny/kwin-effects-forceblur) - The original Better Blur
-- [taj-ny/kwin-effects-better-blur-dx](https://github.com/xarblu/kwin-effects-better-blur-dx) - Better Blur DX
-- 
+- [xarblu/kwin-effects-better-blur-dx](https://github.com/xarblu/kwin-effects-better-blur-dx) - Better Blur DX
+- [GB/BetterWobblyWindows](https://github.com/GoldenBilly/BetterWobblyWindows) - Better Blur DX
+
 
 # Disclaimer
 1. Use at your own risk!
