@@ -149,7 +149,7 @@ new features
 When building under normal conditions, simply clone the repo and run the included build script.
 
 ```sh
-git clone https://github.com/xarblu/kwin-effects-better-blur-dx
+git clone https://github.com/slynobody/liquid-plasma_better_blur
 cd kwin-effects-better-blur-dx
 chmod +x build.sh
 ./build.sh
@@ -166,7 +166,7 @@ To build a version for KWin X11, run the script with the `--x11` flag.
 
   ```sh
   # enter container
-  git clone https://github.com/xarblu/kwin-effects-better-blur-dx
+  git clone https://github.com/slynobody/liquid-plasma_better_blur
   cd kwin-effects-better-blur-dx
   chmod +x build.sh
   ./build.sh --kinoite
@@ -217,7 +217,7 @@ This effect can be very resource-intensive if you have a lot of windows open. On
 Intel GPUs use software cursor by default due to [this bug](https://gitlab.freedesktop.org/drm/intel/-/issues/9571), however it doesn't seem to affect all GPUs.
 
  
- # install (arch, plasma 6.7.2, QT 6.10.2)
+ # (legacy) install (arch, plasma 6.7.2, QT 6.10.2)
 > wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/experimental/betterblur_liquid_kde6-1_2.4a-1-x86_64.pkg.tar.zst
 > 
 > sudo pacman -U ./betterblur_liquid_kde6-1_2.4a-1-x86_64.pkg.tar.zst
