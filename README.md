@@ -3,20 +3,20 @@
 # better blur dx+
 <img width="468" height="216" alt="ezgif-2791664fde5198af" src="https://github.com/user-attachments/assets/1b245ea7-5e8f-4c0f-9cd5-7d6458cf8d19" />
 
-## "liquid" blur for kde plasma (linux, interface-effect, *precompiled*)
-### ('better-blur dx' plasma-extension, forked)
+## "liquid" blur for kde plasma (linux, interface-effect / plasma-extension, *precompiled*)
 
 forked from: https://github.com/xarblu/kwin-effects-better-blur-dx
 
-*precompiled* for easy installation
-
 <img width="800" height="450" alt="ezgif-8fbc2ed7f426659f (1)" src="https://github.com/user-attachments/assets/90194af8-508c-47cc-81ab-6ee37c275e4f" />
 
-experimental: (v2.6)
+debian-package for easy installation. or build it yourself.
 
+<img width="600" height="470" alt="screenshot-20260813-221402" src="https://github.com/user-attachments/assets/53057b7b-b9eb-4b6a-81e9-f4e46f68111c" />
+
+experimental: (v2.6)
 new features 
-* border hightlight
-* mouse highlight
+* border highlight (small border
+* mouse highlight (border glow with mouse-follow)
 * wobbly-windows-compatibility (though bundled [BetterWobblyWindows](https://github.com/GoldenBilly/BetterWobblyWindows)
 * better rounded corners
 * performace-tweaks
@@ -253,7 +253,7 @@ Intel GPUs use software cursor by default due to [this bug](https://gitlab.freed
 - [a-parhom/LightlyShaders](https://github.com/a-parhom/LightlyShaders) - CMakeLists.txt files
 - [taj-ny/kwin-effects-forceblur](https://github.com/taj-ny/kwin-effects-forceblur) - The original Better Blur
 - [xarblu/kwin-effects-better-blur-dx](https://github.com/xarblu/kwin-effects-better-blur-dx) - Better Blur DX
-- [GB/BetterWobblyWindows](https://github.com/GoldenBilly/BetterWobblyWindows) - Better Blur DX
+- [GB/BetterWobblyWindows](https://github.com/GoldenBilly/BetterWobblyWindows) - Better Wobbly Windows
 
 
 # Disclaimer
