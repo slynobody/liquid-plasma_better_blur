@@ -153,7 +153,7 @@ When building under normal conditions, simply clone the repo and run the include
 
 ```sh
 git clone https://github.com/slynobody/liquid-plasma_better_blur
-cd kwin-effects-better-blur-dx
+cd liquid-plasma_better_blur
 chmod +x build.sh
 ./build.sh
 ```
@@ -170,7 +170,7 @@ To build a version for KWin X11, run the script with the `--x11` flag.
   ```sh
   # enter container
   git clone https://github.com/slynobody/liquid-plasma_better_blur
-  cd kwin-effects-better-blur-dx
+  cd liquid-plasma_better_blur
   chmod +x build.sh
   ./build.sh --kinoite
   exit # exit container
