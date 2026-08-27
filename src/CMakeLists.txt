@@ -1,5 +1,5 @@
 project(kwin_better_blur_dx+
-    VERSION 2.6
+    VERSION 2.6.1
     LANGUAGES CXX
 )
 

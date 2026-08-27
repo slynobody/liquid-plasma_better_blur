@@ -2,6 +2,7 @@
 <qresource prefix="/effects/better_blur_dx/">
   <file>shaders/downsample.frag</file>
   <file>shaders/downsample_core.frag</file>
+  <file>shaders/mesh_refraction.frag</file>
   <file>shaders/noise.frag</file>
   <file>shaders/noise_core.frag</file>
   <file>shaders/onscreen.frag</file>

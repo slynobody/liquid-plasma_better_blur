@@ -179,6 +179,7 @@ public:
      */
     KWin::GLTexture* cachedTexture() const { return m_cachedTexture.get(); }
     KWin::GLFramebuffer* cachedFramebuffer() const { return m_cachedFramebuffer.get(); }
+    const KWin::Rect& backgroundRect() const { return m_backgroundRect; }
     const KWin::Region& accumulatedDirtyRegion() const { return m_accumulatedDirtyRegion; }
     const std::chrono::steady_clock::time_point& lastFlush() const { return m_lastFlush; }
     bool isFlushing() const { return m_isFlushing; }

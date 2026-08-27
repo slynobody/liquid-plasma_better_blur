@@ -86,6 +86,15 @@ public:
     bool borderHighlightMouseEnabled() const { return m_borderHighlightMouseEnabled; }
 
     /**
+     * Get border highlight settings
+     */
+    QColor borderHighlightColor() const { return m_borderHighlightColor; }
+    int borderHighlightWidth() const { return m_borderHighlightWidth; }
+    int borderHighlightStrength() const { return m_borderHighlightStrength; }
+    int borderHighlightMouseStrength() const { return m_borderHighlightMouseStrength; }
+    int borderHighlightCornerRadius() const { return m_borderHighlightCornerRadius; }
+
+    /**
      * Set mouse position (normalized screen coordinates 0-1)
      */
     void setMousePosition(const QVector2D &pos) { m_mousePosition = pos; }

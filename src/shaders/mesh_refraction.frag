@@ -1,0 +1,73 @@
+uniform sampler2D texUnit;
+uniform mat4 colorMatrix;
+uniform float offset;
+uniform vec2 halfpixel;
+
+// Border highlight uniforms
+uniform vec4 borderHighlightColor;  // RGBA (alpha = strength)
+uniform float borderHighlightWidth;  // Width in pixels
+uniform vec2 borderHighlightMouse;  // Mouse position in screen coordinates (0-1)
+uniform float borderHighlightMouseStrength;  // Mouse highlight strength (0-1)
+
+// For proper texture sampling
+uniform vec2 meshRectSize;
+
+varying vec2 uv;
+
+// Simple rectangle distance function (non-rounded)
+// Returns positive distance outside, negative inside
+float rectangleDist(vec2 p, vec2 b) {
+    vec2 d = abs(p) - b;
+    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+}
+
+void main()
+{
+    // Sample the blurred texture
+    // uv is the mesh-relative texture coordinate [0,1]
+    vec2 uvOffset = uv + vec2(offset / meshRectSize.x, offset / meshRectSize.y);
+    vec4 color = texture2D(texUnit, uvOffset);
+    
+    // Apply color matrix
+    gl_FragColor = color * colorMatrix;
+    
+    // === BORDER HIGHLIGHT (UV-based for mesh geometry) ===
+    // For mesh rendering, the UV space [0,1] corresponds to the mesh geometry
+    // Edges are at uv.x = 0, uv.x = 1, uv.y = 0, uv.y = 1
+    
+    // Calculate distance from each edge in UV space
+    float distFromEdge = min(uv.x, 1.0 - uv.x, uv.y, 1.0 - uv.y);
+    
+    // Convert UV distance to pixel distance
+    // We use the average of width and height for proportional scaling
+    float avgSize = (meshRectSize.x + meshRectSize.y) * 0.5;
+    float distPixels = distFromEdge * avgSize;
+    
+    // Normalize by border width
+    float normalizedDist = distPixels / max(borderHighlightWidth, 1.0);
+    
+    // Create highlight that's brightest at the edge and fades inward
+    // Use smoothstep for smooth transition
+    float edgeFalloff = 1.0 - smoothstep(0.0, 1.0, normalizedDist * 2.0);
+    float intensity = edgeFalloff * borderHighlightColor.a;
+    
+    // === MOUSE HIGHLIGHT EFFECT ===
+    // Mouse position and fragment position in mesh pixel space
+    vec2 fragPos = uv * meshRectSize;
+    vec2 mousePos = borderHighlightMouse * meshRectSize;
+    
+    float mouseDist = length(fragPos - mousePos);
+    float maxDist = length(meshRectSize) * 0.5;
+    float normalizedMouseDist = clamp(mouseDist / maxDist, 0.0, 1.0);
+    
+    // Mouse proximity: brighter near mouse cursor
+    float mouseProximity = borderHighlightMouseStrength > 0.0 ?
+        smoothstep(1.0, 0.0, normalizedMouseDist) : 0.0;
+    
+    // Combine base highlight with mouse effect
+    float finalIntensity = intensity * (1.0 + mouseProximity * borderHighlightMouseStrength * 16.0);
+    
+    // Apply highlight
+    vec4 highlight = vec4(borderHighlightColor.rgb, 1.0);
+    gl_FragColor = mix(gl_FragColor, highlight, clamp(finalIntensity, 0.0, 0.95));
+}

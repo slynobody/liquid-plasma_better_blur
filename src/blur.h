@@ -16,6 +16,9 @@
 #include "window_manager.hpp"
 #include "settings.hpp"
 
+// Mesh API for wobble-aware blur
+#include "better_blur_dx_api.hpp"
+
 #include <memory>
 #include <opengl/glframebuffer.h>
 
@@ -85,6 +88,14 @@ struct BlurEffectData
      * Color transformation matrix (brightness, contrast, and saturation).
      */
     std::optional<QMatrix4x4> colorMatrix;
+
+    // Mesh data from BetterWobblyWindows for non-rectangular/wobbled blur rendering
+    // These are populated by BetterWobblyWindows via the BetterBlurDxApi when a window
+    // is wobbled. Cleared automatically on focus changes to prevent stale geometry.
+    std::vector<BetterBlurDxApi::MeshVertex> meshVertices;
+    float meshOpacity = 1.0f;
+    bool hasMesh = false;
+    bool meshSuppressedDefaultComposite = false;
 };
 
 class BlurEffect : public KWin::Effect
@@ -140,6 +151,7 @@ private:
     bool shouldBlur(const EffectWindow *w, int mask, const WindowPaintData &data) const;
     void updateBlurRegion(EffectWindow *w);
     void blur(const RenderTarget &renderTarget, const RenderViewport &viewport, EffectWindow *w, int mask, const Region &deviceRegion, WindowPaintData &data);
+    void renderMeshBlur(const RenderTarget &renderTarget, const RenderViewport &viewport, EffectWindow *w, const Region &deviceRegion, WindowPaintData &data, BlurEffectData &blurInfo);
     GLTexture *ensureNoiseTexture();
 
 private:
@@ -192,6 +204,21 @@ private:
         qreal noiseTextureScale = 1.0;
         int noiseTextureStength = 0;
     } m_noisePass;
+
+    // Mesh refraction pass for border highlight with mesh geometry
+    struct
+    {
+        std::unique_ptr<GLShader> shader;
+        int mvpMatrixLocation;
+        int colorMatrixLocation;
+        int offsetLocation;
+        int halfpixelLocation;
+        int meshRectSizeLocation;
+        int borderHighlightColorLocation;
+        int borderHighlightWidthLocation;
+        int borderHighlightMouseLocation;
+        int borderHighlightMouseStrengthLocation;
+    } m_meshRefractionPass;
 
     bool m_valid = false;
     long net_wm_blur_region = 0;
