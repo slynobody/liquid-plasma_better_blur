@@ -7,7 +7,8 @@
 
 forked from: https://github.com/xarblu/kwin-effects-better-blur-dx
 
-<img width="800" height="450" alt="ezgif-8fbc2ed7f426659f (1)" src="https://github.com/user-attachments/assets/90194af8-508c-47cc-81ab-6ee37c275e4f" />
+<img width="800" height="450" alt="ezgif-8369bac370314c2f" src="https://github.com/user-attachments/assets/029c58df-c542-42f6-b5e2-127a1f54c3ac" />
+
 
 debian-package for easy installation. or build it yourself.
 
