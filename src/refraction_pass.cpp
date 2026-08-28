@@ -23,8 +23,8 @@ std::unique_ptr<BBDX::RefractionPass> BBDX::RefractionPass::create() {
 
     pass->m_shader = KWin::ShaderManager::instance()->generateShaderFromFile(
         KWin::ShaderTrait::MapTexture,
-        BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/vertex.vert"),
-        BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/refraction.frag")
+        BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/vertex.vert"),
+        BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/refraction.frag")
     );
 
     if (!pass->m_shader) {
@@ -148,23 +148,29 @@ bool BBDX::RefractionPass::setParameters(const QMatrix4x4 &projectionMatrix,
     // border highlight parameters
     // Always set these uniforms so the shader has the correct values
     // (border highlight may be toggled on/off without restarting)
-    if (m_borderHighlightColorLocation != -1 && 
-        m_borderHighlightWidthLocation != -1 &&
-        m_borderHighlightMouseLocation != -1 &&
-        m_borderHighlightMouseStrengthLocation != -1) {
-        
-        // Calculate opacity from strength (0-100 -> 0.0-1.0)
-        const float opacity = static_cast<float>(m_borderHighlightStrength) / 100.0f;
-        const QVector4D highlightColor(
-            static_cast<float>(m_borderHighlightColor.redF()),
-            static_cast<float>(m_borderHighlightColor.greenF()),
-            static_cast<float>(m_borderHighlightColor.blueF()),
-            m_borderHighlightEnabled ? opacity : 0.0f  // Set alpha to 0 if disabled
-        );
+    
+    // Calculate opacity from strength (0-100 -> 0.0-1.0)
+    const float opacity = static_cast<float>(m_borderHighlightStrength) / 100.0f;
+    const QVector4D highlightColor(
+        static_cast<float>(m_borderHighlightColor.redF()),
+        static_cast<float>(m_borderHighlightColor.greenF()),
+        static_cast<float>(m_borderHighlightColor.blueF()),
+        m_borderHighlightEnabled ? opacity : 0.0f  // Set alpha to 0 if disabled
+    );
+    
+    if (m_borderHighlightColorLocation != -1) {
         m_shader->setUniform(m_borderHighlightColorLocation, highlightColor);
+    }
+    if (m_borderHighlightWidthLocation != -1) {
         m_shader->setUniform(m_borderHighlightWidthLocation, static_cast<float>(m_borderHighlightWidth));
+    }
+    if (m_borderHighlightCornerRadiusLocation != -1) {
         m_shader->setUniform(m_borderHighlightCornerRadiusLocation, static_cast<float>(m_borderHighlightCornerRadius));
+    }
+    if (m_borderHighlightMouseLocation != -1) {
         m_shader->setUniform(m_borderHighlightMouseLocation, m_mousePosition);
+    }
+    if (m_borderHighlightMouseStrengthLocation != -1) {
         m_shader->setUniform(m_borderHighlightMouseStrengthLocation, static_cast<float>(m_borderHighlightMouseEnabled ? m_borderHighlightMouseStrength : 0) / 100.0f);
     }
 

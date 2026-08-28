@@ -63,7 +63,7 @@ private:
     bool m_blurDocks{false};
     qreal m_userBorderRadius{0.0};
 
-    // if force blurred, contains the blurred region
+    // if force blurred, contain content/frame of the blur region
     std::optional<KWin::RegionF> m_forceBlurContent{};
     std::optional<KWin::RegionF> m_forceBlurFrame{};
 
@@ -174,7 +174,7 @@ public:
     /**
      * Get effective blur opacity
      */
-    qreal getEffectiveBlurOpacity(KWin::WindowPaintData &data);
+    qreal getEffectiveBlurOpacity(KWin::WindowPaintData &data, bool keepBlurWhileTransformed = false);
 
     /**
      * Check if this window (likely) is a Plasma surface that should

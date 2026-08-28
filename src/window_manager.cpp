@@ -31,7 +31,7 @@
 #include <utility>
 #include <vector>
 
-Q_LOGGING_CATEGORY(WINDOW_MANAGER, "kwin_effect_better_blur_dx.window_manager", QtInfoMsg)
+Q_LOGGING_CATEGORY(WINDOW_MANAGER, "kwin_effect_better_blur_dx_wobbly_api.window_manager", QtInfoMsg)
 
 BBDX::WindowManager::WindowManager(BBDX::BlurEffect *effect) {
     m_effect = effect;
@@ -329,14 +329,14 @@ KWin::BorderRadius BBDX::WindowManager::getEffectiveBorderRadius(const KWin::Eff
     return window->getEffectiveBorderRadius();
 }
 
-qreal BBDX::WindowManager::getEffectiveBlurOpacity(const KWin::EffectWindow *w, KWin::WindowPaintData &data) const {
+qreal BBDX::WindowManager::getEffectiveBlurOpacity(const KWin::EffectWindow *w, KWin::WindowPaintData &data, bool keepBlurWhileTransformed) const {
     const auto window = findWindow(w);
 
     // for unmanaged windows just use the paint data
     if (!window)
         return data.opacity();
 
-    return window->getEffectiveBlurOpacity(data);
+    return window->getEffectiveBlurOpacity(data, keepBlurWhileTransformed);
 }
 
 bool BBDX::WindowManager::windowIsBlurFullyCovered(KWin::EffectWindow *w) const {

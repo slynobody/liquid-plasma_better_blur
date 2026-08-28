@@ -34,7 +34,7 @@
 #include <chrono>
 #include <memory>
 
-Q_LOGGING_CATEGORY(BLUR_CACHE, "kwin_effect_better_blur_dx.blur_cache", QtInfoMsg)
+Q_LOGGING_CATEGORY(BLUR_CACHE, "kwin_effect_better_blur_dx_wobbly_api.blur_cache", QtInfoMsg)
 
 
 /**
@@ -222,8 +222,8 @@ std::unique_ptr<BBDX::BlurCache> BBDX::BlurCache::create(BBDX::BlurEffect *effec
 
     blurCache->m_texturePass.shader = KWin::ShaderManager::instance()->generateShaderFromFile(
         KWin::ShaderTrait::MapTexture,
-        BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/vertex.vert"),
-        BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/texture.frag")
+        BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/vertex.vert"),
+        BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/texture.frag")
     );
 
     if (!blurCache->m_texturePass.shader) {
@@ -421,6 +421,12 @@ done:
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
     cacheEntry->flushed(m_paintData);
+}
+
+void BBDX::BlurCache::finishExternalCache(BBDX::BlurRenderData &renderInfo) const {
+    if (const auto &cacheEntry = renderInfo.cache.get()) {
+        cacheEntry->flushed(m_paintData);
+    }
 }
 
 void BBDX::BlurCache::drawToCache(BBDX::BlurCacheEntry *cache, KWin::GLVertexBuffer *vbo) const {

@@ -11,6 +11,7 @@
 #include "blurconfig.h"
 
 #include "blur_cache.hpp"
+#include "better_blur_dx_api.hpp"
 #include "kwin_compat.hpp"
 #include "refraction_pass.hpp"
 #include "rounded_corners_pass.hpp"
@@ -36,6 +37,7 @@
 #include <scene/backgroundeffectitem.h>
 #endif
 #include <scene/decorationitem.h>
+#include <scene/borderradius.h>
 #include <scene/scene.h>
 #include <scene/surfaceitem.h>
 #include <scene/windowitem.h>
@@ -59,6 +61,7 @@
 #include <QScreen>
 #include <QTime>
 #include <QTimer>
+#include <QVariant>
 #include <QWindow>
 #include <cmath> // for ceil()
 #include <cstdlib>
@@ -69,24 +72,27 @@
 #include <KDecoration3/Decoration>
 
 #include <algorithm>
-#include <limits>
 #include <memory>
 #include <optional>
 #include <utility>
-#include <vector>
 
-Q_LOGGING_CATEGORY(KWIN_BLUR, "kwin_effect_better_blur_dx", QtInfoMsg)
+Q_LOGGING_CATEGORY(KWIN_BLUR, "kwin_effect_better_blur_dx_wobbly_api", QtInfoMsg)
 
 static void ensureResources()
 {
     // Must initialize resources manually because the effect is a static lib.
-    Q_INIT_RESOURCE(blur);
+    Q_INIT_RESOURCE(blur_wobbly_api);
 }
 
 namespace BBDX {
 using namespace KWin;
 
 static const QByteArray s_blurAtomName = QByteArrayLiteral("_KDE_NET_WM_BLUR_BEHIND_REGION");
+static void clearBetterWobblyProviderResult(EffectWindow *w)
+{
+    w->setData(BetterBlurDxApi::ResultRole, QVariant());
+}
+
 
 #if !defined(BBDX_X11) && KWIN_VERSION < KWIN_VERSION_CODE(6, 6, 90)
 BlurManagerInterface *BlurEffect::s_blurManager = nullptr;
@@ -133,13 +139,13 @@ BlurEffect::BlurEffect()
 {
     BlurConfig::instance(effects->config());
     ensureResources();
-    
-    // Initialize mouse tracking
+
+    // Initialize mouse tracking for border/mouse highlight
     m_lastMousePosition = effects->cursorPos();
 
     m_onscreenPass.shader = ShaderManager::instance()->generateShaderFromFile(ShaderTrait::MapTexture,
-                                                                              BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/vertex.vert"),
-                                                                              BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/onscreen.frag"));
+                                                                              BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/vertex.vert"),
+                                                                              BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/onscreen.frag"));
     if (!m_onscreenPass.shader) {
         qCWarning(KWIN_BLUR) << BBDX::LOG_PREFIX << "Failed to load onscreen pass shader";
         return;
@@ -150,10 +156,25 @@ BlurEffect::BlurEffect()
         m_onscreenPass.halfpixelLocation = m_onscreenPass.shader->uniformLocation("halfpixel");
     }
 
+    m_wobblyCompositePass.shader = ShaderManager::instance()->generateShaderFromFile(ShaderTrait::MapTexture,
+                                                                                      BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/vertex.vert"),
+                                                                                      BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/wobbly_composite.frag"));
+    if (!m_wobblyCompositePass.shader) {
+        qCWarning(KWIN_BLUR) << BBDX::LOG_PREFIX << "Failed to load Better Wobbly provider composite shader";
+        return;
+    }
+    m_wobblyCompositePass.mvpMatrixLocation = m_wobblyCompositePass.shader->uniformLocation("modelViewProjectionMatrix");
+    m_wobblyCompositePass.textureSizeLocation = m_wobblyCompositePass.shader->uniformLocation("textureSize");
+    m_wobblyCompositePass.opacityLocation = m_wobblyCompositePass.shader->uniformLocation("opacity");
+    m_wobblyCompositePass.boxLocation = m_wobblyCompositePass.shader->uniformLocation("box");
+    m_wobblyCompositePass.cornerRadiusLocation = m_wobblyCompositePass.shader->uniformLocation("cornerRadius");
+    m_wobblyCompositePass.roundedMaskEnabledLocation =
+        m_wobblyCompositePass.shader->uniformLocation("roundedMaskEnabled");
+
 #if BBDX_NOT_NEEDED
     m_roundedOnscreenPass.shader = ShaderManager::instance()->generateShaderFromFile(ShaderTrait::MapTexture,
-                                                                                     QStringLiteral(":/effects/better_blur_dx/shaders/onscreen_rounded.vert"),
-                                                                                     QStringLiteral(":/effects/better_blur_dx/shaders/onscreen_rounded.frag"));
+                                                                                     QStringLiteral(":/effects/better_blur_dx_wobbly_api/shaders/onscreen_rounded.vert"),
+                                                                                     QStringLiteral(":/effects/better_blur_dx_wobbly_api/shaders/onscreen_rounded.frag"));
     if (!m_roundedOnscreenPass.shader) {
         qCWarning(KWIN_BLUR) << BBDX::LOG_PREFIX << "Failed to load onscreen pass shader";
         return;
@@ -169,8 +190,8 @@ BlurEffect::BlurEffect()
 #endif
 
     m_downsamplePass.shader = ShaderManager::instance()->generateShaderFromFile(ShaderTrait::MapTexture,
-                                                                                BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/vertex.vert"),
-                                                                                BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/downsample.frag"));
+                                                                                BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/vertex.vert"),
+                                                                                BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/downsample.frag"));
     if (!m_downsamplePass.shader) {
         qCWarning(KWIN_BLUR) << BBDX::LOG_PREFIX << "Failed to load downsampling pass shader";
         return;
@@ -181,8 +202,8 @@ BlurEffect::BlurEffect()
     }
 
     m_upsamplePass.shader = ShaderManager::instance()->generateShaderFromFile(ShaderTrait::MapTexture,
-                                                                              BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/vertex.vert"),
-                                                                              BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/upsample.frag"));
+                                                                              BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/vertex.vert"),
+                                                                              BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/upsample.frag"));
     if (!m_upsamplePass.shader) {
         qCWarning(KWIN_BLUR) << BBDX::LOG_PREFIX << "Failed to load upsampling pass shader";
         return;
@@ -193,33 +214,14 @@ BlurEffect::BlurEffect()
     }
 
     m_noisePass.shader = ShaderManager::instance()->generateShaderFromFile(ShaderTrait::MapTexture,
-                                                                           BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/vertex.vert"),
-                                                                           BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/noise.frag"));
+                                                                           BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/vertex.vert"),
+                                                                           BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/noise.frag"));
     if (!m_noisePass.shader) {
         qCWarning(KWIN_BLUR) << BBDX::LOG_PREFIX << "Failed to load noise pass shader";
         return;
     } else {
         m_noisePass.mvpMatrixLocation = m_noisePass.shader->uniformLocation("modelViewProjectionMatrix");
         m_noisePass.noiseTextureSizeLocation = m_noisePass.shader->uniformLocation("noiseTextureSize");
-    }
-
-    // Mesh refraction pass shader for border highlight with mesh geometry
-    m_meshRefractionPass.shader = ShaderManager::instance()->generateShaderFromFile(ShaderTrait::MapTexture,
-                                                                              BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/vertex.vert"),
-                                                                              BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/mesh_refraction.frag"));
-    if (!m_meshRefractionPass.shader) {
-        qCWarning(KWIN_BLUR) << BBDX::LOG_PREFIX << "Failed to load mesh refraction pass shader";
-        // Not fatal, we'll fall back to regular rendering
-    } else {
-        m_meshRefractionPass.mvpMatrixLocation = m_meshRefractionPass.shader->uniformLocation("modelViewProjectionMatrix");
-        m_meshRefractionPass.colorMatrixLocation = m_meshRefractionPass.shader->uniformLocation("colorMatrix");
-        m_meshRefractionPass.offsetLocation = m_meshRefractionPass.shader->uniformLocation("offset");
-        m_meshRefractionPass.halfpixelLocation = m_meshRefractionPass.shader->uniformLocation("halfpixel");
-        m_meshRefractionPass.meshRectSizeLocation = m_meshRefractionPass.shader->uniformLocation("meshRectSize");
-        m_meshRefractionPass.borderHighlightColorLocation = m_meshRefractionPass.shader->uniformLocation("borderHighlightColor");
-        m_meshRefractionPass.borderHighlightWidthLocation = m_meshRefractionPass.shader->uniformLocation("borderHighlightWidth");
-        m_meshRefractionPass.borderHighlightMouseLocation = m_meshRefractionPass.shader->uniformLocation("borderHighlightMouse");
-        m_meshRefractionPass.borderHighlightMouseStrengthLocation = m_meshRefractionPass.shader->uniformLocation("borderHighlightMouseStrength");
     }
 
     // BBDX: managed extension objects
@@ -546,42 +548,6 @@ void BlurEffect::slotWindowAdded(EffectWindow *w)
         setupDecorationConnections(w);
         updateBlurRegion(w);
     });
-    
-    // Handle focus changes to prevent "forgotten" blur on refocused windows
-    // When windows lose focus, BetterWobblyWindows typically stops sending mesh requests.
-    // When focus returns and dragging resumes, BetterWobblyWindows should send new requests,
-    // but the old mesh data might be stale. Solution: Clear mesh data on focus change so that
-    // when requests resume, fresh mesh will be built. The mesh is automatically rebuilt
-    // in blur() when new BetterWobblyWindows requests arrive.
-    if (auto window = w->window()) {
-        connect(window, &KWin::Window::activeChanged, this, [this, w]() {
-            auto it = m_windows.find(w);
-            if (it != m_windows.end()) {
-                // Clear mesh data to prevent stale geometry from being used.
-                // This forces a rebuild when BetterWobblyWindows resumes sending requests.
-                it->second.hasMesh = false;
-                it->second.meshVertices.clear();
-                
-                // Invalidate cache to ensure fresh blur is computed when window is next rendered
-                m_windowManager->invalidateBlurCache(w, static_cast<uint>(BlurCacheInvalidationFlag::FULL), "Focus changed");
-            }
-        });
-    }
-    
-    // Also connect to window movement signals as a fallback.
-    // If BetterWobblyWindows doesn't resume requests properly after focus changes,
-    // we can detect movement and force a rebuild. However, without BetterWobblyWindows
-    // sending the actual mesh geometry, we can't rebuild the mesh. This connection
-    // ensures we at least invalidate the cache when movement starts.
-    connect(w, &EffectWindow::windowStartUserMovedResized, this, [this, w]() {
-        auto it = m_windows.find(w);
-        if (it != m_windows.end()) {
-            // If this window previously had mesh data, invalidate to ensure fresh render
-            if (it->second.hasMesh) {
-                m_windowManager->invalidateBlurCache(w, static_cast<uint>(BlurCacheInvalidationFlag::FULL), "Movement started");
-            }
-        }
-    });
 
     updateBlurRegion(w);
 }
@@ -763,8 +729,6 @@ void BlurEffect::prePaintScreen(ScreenPrePaintData &data)
     m_currentView = data.view;
 #endif
 
-
-
     m_blurCache->flushAccumulatedDirtyRegions(data);
 
 #if KWIN_VERSION < KWIN_VERSION_CODE(6, 6, 90)
@@ -784,12 +748,18 @@ void BlurEffect::prePaintWindow(RenderView *view, EffectWindow *w, WindowPrePain
 {
     // this effect relies on prePaintWindow being called in the bottom to top order
 
-    // Check for BetterWobblyWindows mesh request
-    // We'll handle it in blur() where we have WindowPaintData available
-    // For now, just clear any stale mesh data in prePaintWindow
-
 #if KWIN_VERSION < KWIN_VERSION_CODE(6, 5, 80)
     effects->prePaintWindow(w, data, presentTime);
+
+    // When the original Better Blur DX is enabled, this fork acts as an
+    // API-only companion so the two effects do not composite the same normal
+    // blur twice. When this fork is the only Better Blur DX implementation,
+    // retain the complete upstream pre-paint path so stationary windows are
+    // blurred normally.
+    if (upstreamBetterBlurDxLoaded()
+        && !BetterBlurDxApi::isRequest(w->data(BetterBlurDxApi::RequestRole))) {
+        return;
+    }
 
     const QRegion oldOpaque = data.opaque;
     if (data.opaque.intersects(m_currentDeviceBlur)) {
@@ -831,6 +801,11 @@ void BlurEffect::prePaintWindow(RenderView *view, EffectWindow *w, WindowPrePain
 #elif KWIN_VERSION < KWIN_VERSION_CODE(6, 6, 4)
     effects->prePaintWindow(view, w, data, presentTime);
 
+    if (upstreamBetterBlurDxLoaded()
+        && !BetterBlurDxApi::isRequest(w->data(BetterBlurDxApi::RequestRole))) {
+        return;
+    }
+
     const Region oldOpaque = data.deviceOpaque;
     if (data.deviceOpaque.intersects(m_currentDeviceBlur)) {
         // to blur an area partially we have to shrink the opaque area of a window
@@ -870,8 +845,18 @@ void BlurEffect::prePaintWindow(RenderView *view, EffectWindow *w, WindowPrePain
     m_paintedDeviceArea += data.devicePaint;
 #elif KWIN_VERSION < KWIN_VERSION_CODE(6, 6, 90)
     effects->prePaintWindow(view, w, data, presentTime);
+
+    if (upstreamBetterBlurDxLoaded()
+        && !BetterBlurDxApi::isRequest(w->data(BetterBlurDxApi::RequestRole))) {
+        return;
+    }
 #else
     effects->prePaintWindow(view, w, data);
+
+    if (upstreamBetterBlurDxLoaded()
+        && !BetterBlurDxApi::isRequest(w->data(BetterBlurDxApi::RequestRole))) {
+        return;
+    }
 #endif
 
     // BBDX change:
@@ -886,8 +871,79 @@ void BlurEffect::prePaintWindow(RenderView *view, EffectWindow *w, WindowPrePain
     }
 }
 
+bool BlurEffect::upstreamBetterBlurDxLoaded() const
+{
+    // KWin identifies the original plugin by the CMake/plugin target name.
+    // Check this every frame rather than caching it so toggling either effect in
+    // System Settings immediately switches ownership without restarting KWin.
+    return effects && effects->loadedEffects().contains(QStringLiteral("better_blur_dx"));
+}
+
+bool BlurEffect::canHandleBetterWobblyProviderRequest(const EffectWindow *w) const
+{
+    if (!w) {
+        return false;
+    }
+    const QVariant request = w->data(BetterBlurDxApi::RequestRole);
+    return BetterBlurDxApi::isRequest(request)
+        && BetterBlurDxApi::decodeProvider(request)
+        && m_wobblyCompositePass.shader;
+}
+
+bool BlurEffect::betterWobblyProviderPolicyAllowsBlur(const EffectWindow *w) const
+{
+    if (!w || w->isDesktop()) {
+        return false;
+    }
+
+    // This is the effective Better Blur DX decision after native blur regions,
+    // force-blur matching, menu/dock filters and hard exclusions are applied.
+    if (!m_windowManager->windowIsBlurred(w)) {
+        return false;
+    }
+
+    // Keep the same full-screen-effect policy as the normal rendering path.
+    // A fallback must not reintroduce blur that Better Blur DX intentionally
+    // disabled for the current compositor state.
+    if (effects->activeFullScreenEffect() && !w->data(WindowForceBlurRole).toBool()) {
+        return false;
+    }
+
+    return true;
+}
+
 bool BlurEffect::shouldBlur(const EffectWindow *w, int mask, const WindowPaintData &data) const
 {
+    const QVariant request = w->data(BetterBlurDxApi::RequestRole);
+    if (BetterBlurDxApi::isRequest(request)) {
+        // API v1 must obey the same effective blur policy as normal Better Blur
+        // DX rendering. A window with no requested/forced blur region has been
+        // excluded by matching/type policy, so do not allocate provider resources
+        // for it and do not let the requester substitute its fallback blur.
+        if (!betterWobblyProviderPolicyAllowsBlur(w)) {
+            m_windowManager->setWindowIsTransformed(w, false);
+            return false;
+        }
+
+        // Decline technically before allocating or updating a blur pyramid if
+        // the callback or composite shader is unavailable; the requester may
+        // run its standalone fallback for this kind of failure.
+        if (!canHandleBetterWobblyProviderRequest(w)) {
+            m_windowManager->setWindowIsTransformed(w, false);
+            return false;
+        }
+        m_windowManager->setWindowIsTransformed(w, true);
+        return true;
+    }
+
+    if (upstreamBetterBlurDxLoaded()) {
+        // The original plugin owns stationary/ordinary blur while both effects
+        // are enabled. This fork remains available only for explicit API frames.
+        m_windowManager->setWindowIsTransformed(w, false);
+        return false;
+    }
+
+    // Standalone mode: preserve Better Blur DX's complete original behaviour.
     if (effects->activeFullScreenEffect() && !w->data(WindowForceBlurRole).toBool()) {
         return false;
     }
@@ -896,30 +952,39 @@ bool BlurEffect::shouldBlur(const EffectWindow *w, int mask, const WindowPaintDa
         return false;
     }
 
-    bool scaled = !qFuzzyCompare(data.xScale(), 1.0) && !qFuzzyCompare(data.yScale(), 1.0);
-    bool translated = data.xTranslation() || data.yTranslation();
+    const bool scaled = !qFuzzyCompare(data.xScale(), 1.0) && !qFuzzyCompare(data.yScale(), 1.0);
+    const bool translated = data.xTranslation() || data.yTranslation();
 
-    if ((scaled || (translated || (mask & PAINT_WINDOW_TRANSFORMED))) && !w->data(WindowForceBlurRole).toBool()) {
-        // BBDX:
+    if ((scaled || translated || (mask & PAINT_WINDOW_TRANSFORMED))
+        && !w->data(WindowForceBlurRole).toBool()) {
         m_windowManager->setWindowIsTransformed(w, true);
-        if (m_windowManager->windowShouldBlurWhileTransformed(w)) {
-            return true;
-        }
-
-        return false;
+        return m_windowManager->windowShouldBlurWhileTransformed(w);
     }
-    // BBDX:
-    m_windowManager->setWindowIsTransformed(w, false);
 
+    m_windowManager->setWindowIsTransformed(w, false);
     return true;
 }
 
 void BlurEffect::drawWindow(const RenderTarget &renderTarget, const RenderViewport &viewport, EffectWindow *w, int mask, const Region &deviceRegion, WindowPaintData &data)
 {
+    clearBetterWobblyProviderResult(w);
+    const QVariant request = w->data(BetterBlurDxApi::RequestRole);
+    if (BetterBlurDxApi::isRequest(request)) {
+        // Distinguish an intentional policy rejection from a technical provider
+        // failure. The former must suppress Wobbly's fallback; the latter may use
+        // it. A successful provider composite overwrites either value with Rendered.
+        const auto initialResult = betterWobblyProviderPolicyAllowsBlur(w)
+            ? BetterBlurDxApi::ProviderResult::Declined
+            : BetterBlurDxApi::ProviderResult::DeclinedByPolicy;
+        w->setData(BetterBlurDxApi::ResultRole,
+                   BetterBlurDxApi::encodeProviderResult(initialResult));
+    }
     blur(renderTarget, viewport, w, mask, deviceRegion, data);
 
-    // Draw the window over the blurred area
+    // Draw the window over the blurred area. ProviderResult remains visible
+    // only through this nested chain, where Better Wobbly can skip its fallback.
     effects->drawWindow(renderTarget, viewport, w, mask, deviceRegion, data);
+    clearBetterWobblyProviderResult(w);
 }
 
 GLTexture *BlurEffect::ensureNoiseTexture()
@@ -958,6 +1023,104 @@ GLTexture *BlurEffect::ensureNoiseTexture()
     return m_noisePass.noiseTexture.get();
 }
 
+bool BlurEffect::drawBetterWobblyMesh(const RenderTarget &renderTarget,
+                                            const RenderViewport &viewport,
+                                            EffectWindow *w,
+                                            const Region &deviceRegion,
+                                            WindowPaintData &data,
+                                            BlurRenderData &renderInfo,
+                                            const Rect &backgroundRect,
+                                            float modulation)
+{
+    const BetterBlurDxApi::MeshProvider *provider = BetterBlurDxApi::decodeProvider(
+        w->data(BetterBlurDxApi::RequestRole));
+    if (!provider || !provider->buildMesh || !renderInfo.cache
+        || !renderInfo.cache->cachedTexture() || !m_wobblyCompositePass.shader) {
+        return false;
+    }
+
+    BetterBlurDxApi::MeshBuildInput input;
+    input.effectWindow = reinterpret_cast<quintptr>(w);
+    input.windowPaintData = reinterpret_cast<quintptr>(&data);
+    input.renderScale = viewport.scale();
+    input.cacheOriginX = backgroundRect.x();
+    input.cacheOriginY = backgroundRect.y();
+    input.textureWidth = renderInfo.cache->cachedTexture()->width();
+    input.textureHeight = renderInfo.cache->cachedTexture()->height();
+
+    BetterBlurDxApi::MeshView mesh;
+    if (!provider->buildMesh(provider->context, &input, &mesh)
+        || !mesh.vertices || mesh.vertexCount <= 0 || mesh.opacity <= 0.0f) {
+        return false;
+    }
+
+    m_wobblyCompositeVertices.clear();
+    m_wobblyCompositeVertices.reserve(size_t(mesh.vertexCount));
+    for (int i = 0; i < mesh.vertexCount; ++i) {
+        const BetterBlurDxApi::MeshVertex &source = mesh.vertices[i];
+        m_wobblyCompositeVertices.push_back(GLVertex2D{
+            .position = QVector2D(source.x, source.y),
+            .texcoord = QVector2D(source.cacheX, source.cacheY),
+        });
+    }
+
+    GLVertexBuffer *vbo = GLVertexBuffer::streamingBuffer();
+    vbo->reset();
+    vbo->setAttribLayout(std::span(GLVertexBuffer::GLVertex2DLayout), sizeof(GLVertex2D));
+    vbo->setData(m_wobblyCompositeVertices.data(),
+                 m_wobblyCompositeVertices.size() * sizeof(GLVertex2D));
+    vbo->setVertexCount(m_wobblyCompositeVertices.size());
+    vbo->bindArrays();
+
+    ShaderManager::instance()->pushShader(m_wobblyCompositePass.shader.get());
+    m_wobblyCompositePass.shader->setUniform(m_wobblyCompositePass.mvpMatrixLocation,
+                                              viewport.projectionMatrix());
+    m_wobblyCompositePass.shader->setUniform(m_wobblyCompositePass.textureSizeLocation,
+                                              QVector2D(input.textureWidth, input.textureHeight));
+    m_wobblyCompositePass.shader->setUniform(m_wobblyCompositePass.opacityLocation,
+                                              modulation * std::clamp(mesh.opacity, 0.0f, 1.0f));
+
+    // The provider composite bypasses BlurCache::drawCached(), so its rounded
+    // corner pass must be applied in the mesh's undeformed cache coordinates.
+    // This keeps the mask attached to the window while the output vertices wobble.
+    const BorderRadius cornerRadius = m_windowManager->getEffectiveBorderRadius(w);
+    const RectF transformedRect = RectF{
+        w->frameGeometry().x() + data.xTranslation(),
+        w->frameGeometry().y() + data.yTranslation(),
+        w->frameGeometry().width() * data.xScale(),
+        w->frameGeometry().height() * data.yScale(),
+    };
+#if KWIN_VERSION < KWIN_VERSION_CODE(6, 6, 90)
+    const RectF box{snapToPixelGridF(transformedRect).translated(-backgroundRect.topLeft())};
+#else
+    const RectF box{transformedRect.rounded().translated(-backgroundRect.topLeft())};
+#endif
+    m_wobblyCompositePass.shader->setUniform(m_wobblyCompositePass.boxLocation,
+        QVector4D(box.horizontalCenter(), box.verticalCenter(), box.width() * 0.5, box.height() * 0.5));
+    m_wobblyCompositePass.shader->setUniform(m_wobblyCompositePass.cornerRadiusLocation,
+        cornerRadius.rounded().toVector());
+    m_wobblyCompositePass.shader->setUniform(m_wobblyCompositePass.roundedMaskEnabledLocation,
+        cornerRadius.isNull() ? 0.0f : 1.0f);
+
+    renderInfo.cache->cachedTexture()->bind();
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    if (deviceRegion != Region::infinite()) {
+        const Region clipRegion = viewport.transform().map(deviceRegion, renderTarget.transformedSize());
+        glEnable(GL_SCISSOR_TEST);
+        vbo->draw(clipRegion, GL_TRIANGLES, 0, mesh.vertexCount, true);
+        glDisable(GL_SCISSOR_TEST);
+    } else {
+        vbo->draw(GL_TRIANGLES, 0, mesh.vertexCount);
+    }
+    glDisable(GL_BLEND);
+
+    ShaderManager::instance()->popShader();
+    vbo->unbindArrays();
+    m_blurCache->finishExternalCache(renderInfo);
+    return true;
+}
+
 void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &viewport, EffectWindow *w, int mask, const Region &deviceRegion, WindowPaintData &data)
 {
     auto it = m_windows.find(w);
@@ -969,76 +1132,6 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
     BlurRenderData &renderInfo = blurInfo.render[m_currentView];
 
     if (!shouldBlur(w, mask, data)) {
-        // Clear any mesh data for windows that shouldn't be blurred
-        blurInfo.hasMesh = false;
-        blurInfo.meshVertices.clear();
-        return;
-    }
-
-    // Check for BetterWobblyWindows mesh request
-    // This is handled here (in blur()) rather than prePaintWindow because we need WindowPaintData.
-    // NOTE: If BetterWobblyWindows stops sending requests (e.g., on focus loss), the mesh data
-    // will be cleared by the focus change handler. When requests resume, fresh mesh will be built.
-    const QVariant request = w->data(BetterBlurDxApi::RequestRole);
-    if (BetterBlurDxApi::IsRequest(request)) {
-        const auto *provider = BetterBlurDxApi::DecodeProvider(request);
-        if (provider && provider->BuildMesh) {
-            // Compute the expected cache information based on blur region
-            RegionF blurShape = blurRegion(w);
-            blurShape.translate(w->pos());
-            
-            // Apply window transformations
-            if (data.xScale() != 1 || data.yScale() != 1) {
-                blurShape.scale(data.xScale(), data.yScale());
-            }
-            if (data.xTranslation() || data.yTranslation()) {
-                blurShape.translate(data.xTranslation(), data.yTranslation());
-            }
-            
-            const Rect backgroundRect = blurShape.boundingRect().rounded();
-            const float renderScale = static_cast<float>(viewport.scale());
-            
-            // Manually expand the rect since Rect might not have expandedBy
-            const Rect expandedRect(backgroundRect.x() - m_expandSize, backgroundRect.y() - m_expandSize,
-                                   backgroundRect.width() + m_expandSize * 2, backgroundRect.height() + m_expandSize * 2);
-            
-            // Build the mesh with cache information
-            BetterBlurDxApi::MeshBuildInput input;
-            input.effectWindow = reinterpret_cast<quintptr>(w);
-            input.windowPaintData = reinterpret_cast<quintptr>(&data);
-            input.renderScale = renderScale;
-            input.cacheOriginX = expandedRect.x();
-            input.cacheOriginY = expandedRect.y();
-            input.textureWidth = expandedRect.width();
-            input.textureHeight = expandedRect.height();
-            
-            BetterBlurDxApi::MeshView output;
-            if (provider->BuildMesh(provider->context, &input, &output)) {
-                // Store the mesh for this window
-                blurInfo.meshVertices.assign(output.vertices, output.vertices + output.vertexCount);
-                blurInfo.meshOpacity = output.opacity;
-                blurInfo.hasMesh = true;
-                blurInfo.meshSuppressedDefaultComposite = BetterBlurDxApi::SuppressDefaultComposite(request);
-                
-                // Acknowledge that we will render this mesh
-                w->setData(BetterBlurDxApi::ResultRole, 
-                          BetterBlurDxApi::EncodeProviderResult(BetterBlurDxApi::ProviderResult::Rendered));
-            } else {
-                // Mesh building failed, clear any previous mesh
-                blurInfo.hasMesh = false;
-                blurInfo.meshVertices.clear();
-                
-                // Acknowledge decline
-                w->setData(BetterBlurDxApi::ResultRole, 
-                          BetterBlurDxApi::EncodeProviderResult(BetterBlurDxApi::ProviderResult::Declined));
-            }
-        }
-    }
-
-    // Check if we have mesh data from BetterWobblyWindows
-    if (blurInfo.hasMesh && !blurInfo.meshVertices.empty()) {
-        // Render mesh-based blur for wobbled windows
-        renderMeshBlur(renderTarget, viewport, w, deviceRegion, data, blurInfo);
         return;
     }
 
@@ -1091,7 +1184,14 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
     const Rect scaledBackgroundRect = backgroundRect.scaled(viewport.scale()).rounded();
     const Rect deviceBackgroundRect = viewport.mapToDeviceCoordinates(backgroundRect).rounded();
 #endif
-    const auto opacity = m_windowManager->getEffectiveBlurOpacity(w, data);
+    const bool providerOwnedWobblyFrame = BetterBlurDxApi::isRequest(
+        w->data(BetterBlurDxApi::RequestRole));
+    // Better Blur DX normally fades blur to zero over 250 ms while a window is
+    // transformed because the stock rectangular composite cannot follow a
+    // Wobbly mesh. API v1 supplies that mesh, so applying that fade here makes
+    // a successfully rendered provider frame fully transparent during a drag.
+    const auto opacity = m_windowManager->getEffectiveBlurOpacity(
+        w, data, providerOwnedWobblyFrame);
 
     // Get the effective shape that will be actually blurred. It's possible that all of it will be clipped.
     QList<RectF> effectiveShape;
@@ -1203,6 +1303,9 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
     if (!renderInfo.cache.get()) {
         qCWarning(KWIN_BLUR) << BBDX::LOG_PREFIX << "Bailing due to missing cache entry";
         return;
+    }
+    if (BetterBlurDxApi::requireFreshCache(w->data(BetterBlurDxApi::RequestRole))) {
+        renderInfo.cache->flush("inter-effect API requested a fresh frame");
     }
 #endif
 
@@ -1329,7 +1432,25 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
     // BBDX: rate limited
     if (!renderInfo.cache->isFlushing()) {
         const float modulation = opacity * opacity;
-        m_blurCache->drawCached(viewport, renderInfo, vbo, vertexCount, modulation);
+        const QVariant request = w->data(BetterBlurDxApi::RequestRole);
+        if (BetterBlurDxApi::suppressDefaultComposite(request)) {
+            const bool rendered = BetterBlurDxApi::decodeProvider(request)
+                && drawBetterWobblyMesh(renderTarget,
+                                        viewport,
+                                        w,
+                                        deviceRegion,
+                                        data,
+                                        renderInfo,
+                                        backgroundRect,
+                                        modulation);
+            w->setData(BetterBlurDxApi::ResultRole,
+                       BetterBlurDxApi::encodeProviderResult(rendered
+                           ? BetterBlurDxApi::ProviderResult::Rendered
+                           : BetterBlurDxApi::ProviderResult::Declined));
+        } else {
+            m_blurCache->drawCached(viewport, renderInfo, vbo, vertexCount, modulation);
+        }
+        vbo->unbindArrays();
         return;
     }
 
@@ -1546,355 +1667,33 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
     }
 
     // BBDX:
-    m_blurCache->drawCached(viewport, renderInfo, vbo, vertexCount, modulation);
+    BBDX::clearGLScissor();
+    const QVariant request = w->data(BetterBlurDxApi::RequestRole);
+    if (BetterBlurDxApi::suppressDefaultComposite(request)) {
+        const bool rendered = BetterBlurDxApi::decodeProvider(request)
+            && drawBetterWobblyMesh(renderTarget,
+                                    viewport,
+                                    w,
+                                    deviceRegion,
+                                    data,
+                                    renderInfo,
+                                    backgroundRect,
+                                    modulation);
+        if (!rendered) {
+            // The freshly generated cache is complete even when the provider
+            // declines this frame. Mark it finished so fallback does not cause
+            // Better Blur DX to recompute it indefinitely in parallel.
+            m_blurCache->finishExternalCache(renderInfo);
+        }
+        w->setData(BetterBlurDxApi::ResultRole,
+                   BetterBlurDxApi::encodeProviderResult(rendered
+                       ? BetterBlurDxApi::ProviderResult::Rendered
+                       : BetterBlurDxApi::ProviderResult::Declined));
+    } else {
+        m_blurCache->drawCached(viewport, renderInfo, vbo, vertexCount, modulation);
+    }
 
     vbo->unbindArrays();
-}
-
-void BlurEffect::renderMeshBlur(const RenderTarget &renderTarget, const RenderViewport &viewport, EffectWindow *w, const Region &deviceRegion, WindowPaintData &data, BlurEffectData &blurInfo)
-{
-    // Mesh-based blur rendering for wobbled windows (BetterWobblyWindows integration)
-    // The mesh vertices contain both deformed device positions and cache positions.
-    // This function applies the full blur pipeline (downsample + upsample) to the mesh.
-    //
-    // NOTE: Mesh data is automatically cleared on window focus changes (see slotWindowAdded)
-    // to prevent "forgotten blur" issues. When focus returns, requests from BetterWobblyWindows
-    // will trigger mesh rebuild in the blur() function.
-    
-    if (blurInfo.meshVertices.empty()) {
-        return;
-    }
-
-    // Compute the bounding box of the mesh in device coordinates
-    // This determines the area we need to cache
-    float minX = std::numeric_limits<float>::max();
-    float maxX = std::numeric_limits<float>::lowest();
-    float minY = std::numeric_limits<float>::max();
-    float maxY = std::numeric_limits<float>::lowest();
-    
-    for (const auto &vertex : blurInfo.meshVertices) {
-        minX = std::min(minX, vertex.x);
-        maxX = std::max(maxX, vertex.x);
-        minY = std::min(minY, vertex.y);
-        maxY = std::max(maxY, vertex.y);
-    }
-    
-    if (minX > maxX || minY > maxY) {
-        return;
-    }
-    
-    const QRect deviceRect(QPoint(static_cast<int>(std::floor(minX)), static_cast<int>(std::floor(minY))),
-                          QPoint(static_cast<int>(std::ceil(maxX)), static_cast<int>(std::ceil(maxY))));
-    
-    if (deviceRect.isEmpty()) {
-        return;
-    }
-    
-    // Compute the background rect - use the mesh bounding box
-    const Rect backgroundRect = Rect(deviceRect);
-    const Rect scaledBackgroundRect = backgroundRect;
-    
-    // Prepare render info for this view
-    BlurRenderData renderInfo;
-    
-    // Prepare cache entry - this captures the background into the cache texture
-    m_blurCache->preparePaintData(&renderTarget,
-                                  &viewport,
-                                  m_currentView,
-                                  &data,
-                                  w,
-                                  &deviceRegion,
-                                  renderInfo.framebuffers[0].get(),
-                                  &backgroundRect,
-                                  &scaledBackgroundRect,
-                                  renderInfo.cache);
-    
-    if (!renderInfo.cache.get()) {
-        qCWarning(KWIN_BLUR) << BBDX::LOG_PREFIX << "Bailing mesh blur due to missing cache entry";
-        return;
-    }
-
-    // Maybe reallocate offscreen render targets for blur passes
-    GLenum textureFormat = GL_RGBA8;
-    if (renderTarget.texture()) {
-        textureFormat = renderTarget.texture()->internalFormat();
-    }
-
-    if (renderInfo.framebuffers.size() != (m_iterationCount + 1) || 
-        renderInfo.textures.empty() || 
-        renderInfo.textures[0]->size() != backgroundRect.size() || 
-        renderInfo.textures[0]->internalFormat() != textureFormat) {
-        renderInfo.framebuffers.clear();
-        renderInfo.textures.clear();
-        
-        if (renderInfo.cache) {
-            renderInfo.cache->invalidate(static_cast<uint>(BlurCacheInvalidationFlag::FULL), "New framebuffers required for mesh blur");
-        }
-
-        glClearColor(0.0, 0.0, 0.0, 1.0);
-        for (size_t i = 0; i <= m_iterationCount; ++i) {
-            auto texture = GLTexture::allocate(textureFormat, BBDX::getTextureSize(backgroundRect, i));
-            if (!texture) {
-                qCWarning(KWIN_BLUR) << BBDX::LOG_PREFIX << "Failed to allocate an offscreen texture for mesh blur";
-                return;
-            }
-            texture->setFilter(GL_LINEAR);
-            texture->setWrapMode(GL_CLAMP_TO_EDGE);
-
-            auto framebuffer = std::make_unique<GLFramebuffer>(texture.get());
-            if (!framebuffer->valid()) {
-                qCWarning(KWIN_BLUR) << BBDX::LOG_PREFIX << "Failed to create an offscreen framebuffer for mesh blur";
-                return;
-            }
-            GLFramebuffer::pushFramebuffer(framebuffer.get());
-            glClear(GL_COLOR_BUFFER_BIT);
-            GLFramebuffer::popFramebuffer();
-            renderInfo.textures.push_back(std::move(texture));
-            renderInfo.framebuffers.push_back(std::move(framebuffer));
-        }
-    }
-
-    // Build VBO with mesh vertices
-    GLVertexBuffer *vbo = GLVertexBuffer::streamingBuffer();
-    vbo->reset();
-    vbo->setAttribLayout(std::span(GLVertexBuffer::GLVertex2DLayout), sizeof(GLVertex2D));
-    
-    const int vertexCount = static_cast<int>(blurInfo.meshVertices.size());
-    if (vertexCount < 3) {
-        return;
-    }
-    
-    // Get cache texture info
-    const int cacheWidth = renderInfo.cache->cachedTexture()->width();
-    const int cacheHeight = renderInfo.cache->cachedTexture()->height();
-    const Rect &cacheBackgroundRect = renderInfo.cache->backgroundRect();
-    
-    if (auto result = vbo->map<GLVertex2D>(vertexCount)) {
-        auto map = *result;
-        
-        int idx = 0;
-        for (const auto &vertex : blurInfo.meshVertices) {
-            const float x = vertex.x;
-            const float y = vertex.y;
-            
-            // For border highlight to work with mesh, we need to use mesh-relative coordinates
-            // as texture coordinates. Normalize device position to mesh bounding box
-            const float meshU = (x - minX) / (maxX - minX);
-            const float meshV = 1.0f - ((y - minY) / (maxY - minY));
-            
-            // Use mesh-relative coordinates for highlight calculation
-            // but we still need to sample from cache, so we use a custom approach:
-            // We'll create TWO VBOs - one for cache capture (uses cache UV)
-            // and one for final rendering (uses mesh UV for highlight)
-            
-            map[idx++] = GLVertex2D{
-                .position = QVector2D(x, y),
-                .texcoord = QVector2D(meshU, meshV),  // Use mesh-relative coords
-            };
-        }
-        
-        vbo->unmap();
-        
-        // Create a separate VBO for cache capture with proper cache UV coordinates
-        GLVertexBuffer *cacheVbo = GLVertexBuffer::streamingBuffer();
-        cacheVbo->reset();
-        cacheVbo->setAttribLayout(std::span(GLVertexBuffer::GLVertex2DLayout), sizeof(GLVertex2D));
-        
-        if (auto cacheResult = cacheVbo->map<GLVertex2D>(vertexCount)) {
-            auto cacheMap = *cacheResult;
-            
-            int cacheIdx = 0;
-            for (const auto &vertex : blurInfo.meshVertices) {
-                const float cacheRelX = vertex.cacheX - cacheBackgroundRect.x();
-                const float cacheRelY = vertex.cacheY - cacheBackgroundRect.y();
-                const float u = cacheRelX / cacheWidth;
-                const float v = 1.0f - (cacheRelY / cacheHeight);
-                
-                cacheMap[cacheIdx++] = GLVertex2D{
-                    .position = QVector2D(vertex.x, vertex.y),
-                    .texcoord = QVector2D(u, v),
-                };
-            }
-            
-            cacheVbo->unmap();
-            
-            // Draw the background to cache using the cache VBO (with proper cache UVs)
-            m_blurCache->drawToCache(renderInfo.cache.get(), cacheVbo);
-        }
-        
-        // Create a standard quad VBO for blur passes (rectangular geometry)
-        GLVertexBuffer *blurVbo = GLVertexBuffer::streamingBuffer();
-        blurVbo->reset();
-        blurVbo->setAttribLayout(std::span(GLVertexBuffer::GLVertex2DLayout), sizeof(GLVertex2D));
-        
-        if (auto blurResult = blurVbo->map<GLVertex2D>(6)) {
-            auto blurMap = *blurResult;
-            const float x0 = 0.0f;
-            const float y0 = 0.0f;
-            const float x1 = static_cast<float>(backgroundRect.width());
-            const float y1 = static_cast<float>(backgroundRect.height());
-            
-            blurMap[0] = GLVertex2D{ .position = QVector2D(x0, y0), .texcoord = QVector2D(0.0f, 1.0f) };
-            blurMap[1] = GLVertex2D{ .position = QVector2D(x1, y1), .texcoord = QVector2D(1.0f, 0.0f) };
-            blurMap[2] = GLVertex2D{ .position = QVector2D(x0, y1), .texcoord = QVector2D(0.0f, 0.0f) };
-            blurMap[3] = GLVertex2D{ .position = QVector2D(x0, y0), .texcoord = QVector2D(0.0f, 1.0f) };
-            blurMap[4] = GLVertex2D{ .position = QVector2D(x1, y0), .texcoord = QVector2D(1.0f, 1.0f) };
-            blurMap[5] = GLVertex2D{ .position = QVector2D(x1, y1), .texcoord = QVector2D(1.0f, 0.0f) };
-            blurVbo->unmap();
-            
-            // Copy cache to texture[0]
-            renderInfo.cache->cachedTexture()->bind();
-            GLFramebuffer::pushFramebuffer(renderInfo.framebuffers[0].get());
-            glClear(GL_COLOR_BUFFER_BIT);
-            
-            blurVbo->bindArrays();
-            QMatrix4x4 projectionMatrix;
-            projectionMatrix.ortho(QRectF(0.0, 0.0, backgroundRect.width(), backgroundRect.height()));
-            
-            ShaderManager::instance()->pushShader(m_onscreenPass.shader.get());
-            m_onscreenPass.shader->setUniform(m_onscreenPass.mvpMatrixLocation, projectionMatrix);
-            const QVector2D halfpixel(0.5 / backgroundRect.width(), 0.5 / backgroundRect.height());
-            m_onscreenPass.shader->setUniform(m_onscreenPass.halfpixelLocation, halfpixel);
-            m_onscreenPass.shader->setUniform(m_onscreenPass.offsetLocation, float(0));
-            m_onscreenPass.shader->setUniform(m_onscreenPass.colorMatrixLocation, QMatrix4x4());
-            
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            blurVbo->unbindArrays();
-            ShaderManager::instance()->popShader();
-            GLFramebuffer::popFramebuffer();
-            
-            // Apply downsample passes
-            {
-                ShaderManager::instance()->pushShader(m_downsamplePass.shader.get());
-                projectionMatrix.ortho(QRectF(0.0, 0.0, backgroundRect.width(), backgroundRect.height()));
-                m_downsamplePass.shader->setUniform(m_downsamplePass.mvpMatrixLocation, projectionMatrix);
-                m_downsamplePass.shader->setUniform(m_downsamplePass.offsetLocation, float(m_offset));
-                
-                for (size_t i = 1; i < renderInfo.framebuffers.size(); ++i) {
-                    const auto &read = renderInfo.framebuffers[i - 1];
-                    const auto &draw = renderInfo.framebuffers[i];
-                    const QVector2D halfpixel(0.5 / read->colorAttachment()->width(),
-                                              0.5 / read->colorAttachment()->height());
-                    m_downsamplePass.shader->setUniform(m_downsamplePass.halfpixelLocation, halfpixel);
-                    read->colorAttachment()->bind();
-                    GLFramebuffer::pushFramebuffer(draw.get());
-                    blurVbo->draw(GL_TRIANGLES, 0, 6);
-                }
-                ShaderManager::instance()->popShader();
-            }
-            
-            // Apply upsample passes
-            {
-                ShaderManager::instance()->pushShader(m_upsamplePass.shader.get());
-                projectionMatrix.ortho(QRectF(0.0, 0.0, backgroundRect.width(), backgroundRect.height()));
-                m_upsamplePass.shader->setUniform(m_upsamplePass.mvpMatrixLocation, projectionMatrix);
-                m_upsamplePass.shader->setUniform(m_upsamplePass.offsetLocation, float(m_offset));
-                
-                for (size_t i = renderInfo.framebuffers.size() - 1; i > 1; --i) {
-                    GLFramebuffer::popFramebuffer();
-                    const auto &read = renderInfo.framebuffers[i];
-                    const QVector2D halfpixel(0.5 / read->colorAttachment()->width(),
-                                              0.5 / read->colorAttachment()->height());
-                    m_upsamplePass.shader->setUniform(m_upsamplePass.halfpixelLocation, halfpixel);
-                    read->colorAttachment()->bind();
-                    blurVbo->draw(GL_TRIANGLES, 0, 6);
-                }
-                ShaderManager::instance()->popShader();
-            }
-            
-            // Render final blurred result with mesh vertices
-            // Use a ONE-PASS approach with mesh-relative UV coordinates
-            GLFramebuffer::popFramebuffer();
-            
-            renderInfo.textures[1]->bind();
-            
-            // Use viewport projection matrix for device-space rendering
-            QMatrix4x4 mvpMatrix = viewport.projectionMatrix();
-            const QVector2D finalHalfpixel(0.5f / renderTarget.size().width(),
-                                          0.5f / renderTarget.size().height());
-            
-            // Calculate mesh dimensions
-            const float meshWidth = maxX - minX;
-            const float meshHeight = maxY - minY;
-            const QVector2D meshRectSize(meshWidth, meshHeight);
-            
-            const float opacity = m_windowManager->getEffectiveBlurOpacity(w, data);
-            const float modulation = opacity * opacity * blurInfo.meshOpacity;
-            
-            // Try to use the mesh refraction shader for proper UV-based border highlight
-            if (m_meshRefractionPass.shader && m_refractionPass && m_refractionPass->borderHighlightEnabled()) {
-                const QPointF cursorPos = effects->cursorPos();
-                const float x = static_cast<float>(std::clamp((cursorPos.x() - minX) / std::max(meshWidth, 1.0f), 0.0, 1.0));
-                const float y = static_cast<float>(std::clamp(1.0f - (cursorPos.y() - minY) / std::max(meshHeight, 1.0f), 0.0, 1.0));
-                QVector2D mousePosInMesh(x, y);
-                
-                ShaderManager::instance()->pushShader(m_meshRefractionPass.shader.get());
-                m_meshRefractionPass.shader->setUniform(m_meshRefractionPass.mvpMatrixLocation, mvpMatrix);
-                m_meshRefractionPass.shader->setUniform(m_meshRefractionPass.colorMatrixLocation, m_colorMatrix);
-                m_meshRefractionPass.shader->setUniform(m_meshRefractionPass.offsetLocation, float(m_offset));
-                m_meshRefractionPass.shader->setUniform(m_meshRefractionPass.halfpixelLocation, finalHalfpixel);
-                m_meshRefractionPass.shader->setUniform(m_meshRefractionPass.meshRectSizeLocation, meshRectSize);
-                
-                const float highlightOpacity = static_cast<float>(m_refractionPass->borderHighlightStrength()) / 100.0f;
-                const QVector4D highlightColor(
-                    static_cast<float>(m_refractionPass->borderHighlightColor().redF()),
-                    static_cast<float>(m_refractionPass->borderHighlightColor().greenF()),
-                    static_cast<float>(m_refractionPass->borderHighlightColor().blueF()),
-                    m_refractionPass->borderHighlightEnabled() ? (highlightOpacity * modulation) : 0.0f
-                );
-                
-                m_meshRefractionPass.shader->setUniform(m_meshRefractionPass.borderHighlightColorLocation, highlightColor);
-                m_meshRefractionPass.shader->setUniform(m_meshRefractionPass.borderHighlightWidthLocation,
-                                                       static_cast<float>(m_refractionPass->borderHighlightWidth()));
-                m_meshRefractionPass.shader->setUniform(m_meshRefractionPass.borderHighlightMouseLocation, mousePosInMesh);
-                m_meshRefractionPass.shader->setUniform(m_meshRefractionPass.borderHighlightMouseStrengthLocation,
-                                                       static_cast<float>(m_refractionPass->borderHighlightMouseEnabled() ? 
-                                                                         m_refractionPass->borderHighlightMouseStrength() : 0) / 100.0f);
-                    
-                    if (modulation < 1.0f) {
-                        glEnable(GL_BLEND);
-                        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                        glBlendColor(0, 0, 0, modulation);
-                    }
-                    
-                    vbo->bindArrays();
-                    glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-                    vbo->unbindArrays();
-                    
-                    if (modulation < 1.0f) {
-                        glDisable(GL_BLEND);
-                    }
-                    
-                    ShaderManager::instance()->popShader();
-                } else {
-                // Fallback to onscreen shader
-                ShaderManager::instance()->pushShader(m_onscreenPass.shader.get());
-                m_onscreenPass.shader->setUniform(m_onscreenPass.mvpMatrixLocation, mvpMatrix);
-                m_onscreenPass.shader->setUniform(m_onscreenPass.colorMatrixLocation, m_colorMatrix);
-                m_onscreenPass.shader->setUniform(m_onscreenPass.halfpixelLocation, finalHalfpixel);
-                m_onscreenPass.shader->setUniform(m_onscreenPass.offsetLocation, float(m_offset));
-                
-                if (modulation < 1.0f) {
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                    glBlendColor(0, 0, 0, modulation);
-                }
-                
-                vbo->bindArrays();
-                glDrawArrays(GL_TRIANGLES, 0, vertexCount);
-                vbo->unbindArrays();
-                
-                if (modulation < 1.0f) {
-                    glDisable(GL_BLEND);
-                }
-                
-                ShaderManager::instance()->popShader();
-            }
-        }
-    }
-    
-    blurInfo.hasMesh = false;
-    blurInfo.meshVertices.clear();
 }
 
 bool BlurEffect::isActive() const

@@ -1,5 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
-<qresource prefix="/effects/better_blur_dx/">
+<qresource prefix="/effects/better_blur_dx_wobbly_api/">
   <file>shaders/downsample.frag</file>
   <file>shaders/downsample_core.frag</file>
   <file>shaders/noise.frag</file>
@@ -22,5 +22,7 @@
   <file>shaders/upsample_core.frag</file>
   <file>shaders/vertex.vert</file>
   <file>shaders/vertex_core.vert</file>
+  <file>shaders/wobbly_composite.frag</file>
+  <file>shaders/wobbly_composite_core.frag</file>
 </qresource>
 </RCC>

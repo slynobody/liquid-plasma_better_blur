@@ -13,7 +13,7 @@
 namespace BBDX
 {
 
-static const char LOG_PREFIX[]{"better_blur_dx:"};
+static const char LOG_PREFIX[]{"better_blur_dx_wobbly_api:"};
 
 /**
  * Get texture size for offscreen framebuffer allocation during BlurEffect::blur()
@@ -58,10 +58,5 @@ QString shaderFilePath(const char *path);
  */
 KWin::Rect rectRoundedIn(KWin::RectF rect);
 KWin::Rect rectRoundedOut(KWin::RectF rect);
-
-/**
- * Version agnostic helper for KWin::Region(F)::translated()
- */
-KWin::RegionF regionTranslatedF(KWin::RegionF region, QPointF translation);
 
 }

@@ -14,11 +14,19 @@ uniform vec2 meshRectSize;
 
 varying vec2 uv;
 
-// Simple rectangle distance function (non-rounded)
-// Returns positive distance outside, negative inside
-float rectangleDist(vec2 p, vec2 b) {
-    vec2 d = abs(p) - b;
-    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+// Simple rectangle distance function with rounded corners
+// Returns signed distance: negative inside, positive outside, zero at edge
+float rectangleSDF(vec2 uv, float radius) {
+    // Map UV from [0,1] to [-0.5, 0.5] centered at (0.5, 0.5)
+    vec2 p = uv - vec2(0.5);
+    
+    // Box without rounding
+    vec2 d = abs(p) - vec2(0.5);
+    
+    // Rounded box: distance to nearest edge accounting for rounded corners
+    // radius is in UV space [0, 0.5]
+    vec2 d_with_radius = d + vec2(radius);
+    return min(max(d_with_radius.x, d_with_radius.y), 0.0) + length(max(d_with_radius, 0.0)) - radius;
 }
 
 void main()
@@ -33,21 +41,20 @@ void main()
     
     // === BORDER HIGHLIGHT (UV-based for mesh geometry) ===
     // For mesh rendering, the UV space [0,1] corresponds to the mesh geometry
-    // Edges are at uv.x = 0, uv.x = 1, uv.y = 0, uv.y = 1
+    // Use rounded rectangle SDF to follow wobbled window shape
     
-    // Calculate distance from each edge in UV space
-    float distFromEdge = min(uv.x, 1.0 - uv.x, uv.y, 1.0 - uv.y);
+    // Convert border highlight width from pixels to UV space
+    // Use average scale to maintain consistent width
+    float uvScale = (meshRectSize.x + meshRectSize.y) * 0.5;
+    float cornerRadiusUV = borderHighlightWidth / uvScale;
     
-    // Convert UV distance to pixel distance
-    // We use the average of width and height for proportional scaling
-    float avgSize = (meshRectSize.x + meshRectSize.y) * 0.5;
-    float distPixels = distFromEdge * avgSize;
+    float dist = rectangleSDF(uv, cornerRadiusUV);
     
-    // Normalize by border width
+    // Convert SDF distance to pixel distance
+    float distPixels = abs(dist) * uvScale;
+    
+    // Normalize by border width and create falloff
     float normalizedDist = distPixels / max(borderHighlightWidth, 1.0);
-    
-    // Create highlight that's brightest at the edge and fades inward
-    // Use smoothstep for smooth transition
     float edgeFalloff = 1.0 - smoothstep(0.0, 1.0, normalizedDist * 2.0);
     float intensity = edgeFalloff * borderHighlightColor.a;
     

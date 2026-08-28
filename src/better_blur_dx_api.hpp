@@ -1,11 +1,6 @@
 /*
-    Better Blur DX inter-effect mesh API V1.
-    Originally from BetterWobblyWindows project, now integrated directly.
-    SPDX-License-Identifier: GPL-3.0-or-later
-    
-    This API allows BetterWobblyWindows to request mesh-based blur rendering
-    from Better Blur DX for wobbled windows. The mesh geometry is provided by
-    BetterWobblyWindows, and Better Blur DX applies the blur effect to it.
+    Better Blur DX inter-effect mesh API v1.
+    SPDX-License-Identifier: GPL-2.0-or-later
 */
 #pragma once
 
@@ -23,7 +18,8 @@ inline constexpr int Version = 1;
 inline constexpr int RequestRole = 0x42775742; // BWwB
 inline constexpr int ResultRole = 0x42775743;  // BWwC
 
-struct MeshVertex {
+struct MeshVertex
+{
     // Final deformed position in device pixels.
     float x = 0.0f;
     float y = 0.0f;
@@ -34,7 +30,8 @@ struct MeshVertex {
     float cacheY = 0.0f;
 };
 
-struct MeshBuildInput {
+struct MeshBuildInput
+{
     quintptr effectWindow = 0;
     quintptr windowPaintData = 0;
     double renderScale = 1.0;
@@ -44,7 +41,8 @@ struct MeshBuildInput {
     int textureHeight = 0;
 };
 
-struct MeshView {
+struct MeshView
+{
     const MeshVertex *vertices = nullptr;
     int vertexCount = 0;
     // Additional opacity supplied by Wobbly. Better Blur DX multiplies this by
@@ -52,13 +50,16 @@ struct MeshView {
     float opacity = 1.0f;
 };
 
-using BuildMeshCallback = bool (*)(quintptr context, const MeshBuildInput *input, MeshView *output);
+using BuildMeshCallback = bool (*)(quintptr context,
+                                   const MeshBuildInput *input,
+                                   MeshView *output);
 
-struct MeshProvider {
+struct MeshProvider
+{
     quint32 apiVersion = Version;
     quint32 structSize = sizeof(MeshProvider);
     quintptr context = 0;
-    BuildMeshCallback BuildMesh = nullptr;
+    BuildMeshCallback buildMesh = nullptr;
 };
 
 enum class ProviderResult : int {
@@ -71,90 +72,82 @@ enum class ProviderResult : int {
     DeclinedByPolicy = 3,
 };
 
-inline QVariant MakeRequest(
-    const MeshProvider *provider, bool suppressDefaultComposite = true, bool requireFreshCache = true)
+inline QVariant makeRequest(const MeshProvider *provider,
+                            bool suppressDefaultComposite = true,
+                            bool requireFreshCache = true)
 {
     return QVariantMap{
         {QStringLiteral("apiVersion"), Version},
-        {QStringLiteral("provider"), static_cast<qulonglong>(reinterpret_cast<quintptr>(provider))},
+        {QStringLiteral("provider"), qulonglong(reinterpret_cast<quintptr>(provider))},
         {QStringLiteral("suppressDefaultComposite"), suppressDefaultComposite},
         {QStringLiteral("requireFreshCache"), requireFreshCache},
     };
 }
 
-inline bool IsRequest(const QVariant &request)
+inline bool isRequest(const QVariant &request)
 {
     return request.toMap().value(QStringLiteral("apiVersion")).toInt() == Version;
 }
 
-inline bool SuppressDefaultComposite(const QVariant &request)
+inline bool suppressDefaultComposite(const QVariant &request)
 {
     const QVariantMap map = request.toMap();
-    return map.value(QStringLiteral("apiVersion")).toInt() == Version &&
-        map.value(QStringLiteral("suppressDefaultComposite")).toBool();
+    return map.value(QStringLiteral("apiVersion")).toInt() == Version
+        && map.value(QStringLiteral("suppressDefaultComposite")).toBool();
 }
 
-inline bool RequireFreshCache(const QVariant &request)
+inline bool requireFreshCache(const QVariant &request)
 {
     const QVariantMap map = request.toMap();
-    return map.value(QStringLiteral("apiVersion")).toInt() == Version &&
-        map.value(QStringLiteral("requireFreshCache")).toBool();
+    return map.value(QStringLiteral("apiVersion")).toInt() == Version
+        && map.value(QStringLiteral("requireFreshCache")).toBool();
 }
 
-inline const MeshProvider *DecodeProvider(const QVariant &request)
+inline const MeshProvider *decodeProvider(const QVariant &request)
 {
     const QVariantMap map = request.toMap();
     if (map.value(QStringLiteral("apiVersion")).toInt() != Version) {
         return nullptr;
     }
 
-    const quintptr address = static_cast<quintptr>(map.value(QStringLiteral("provider")).toULongLong());
+    const quintptr address = quintptr(map.value(QStringLiteral("provider")).toULongLong());
     if (!address) {
         return nullptr;
     }
 
     const auto *provider = reinterpret_cast<const MeshProvider *>(address);
-    if (provider->apiVersion != Version || provider->structSize < sizeof(MeshProvider) || !provider->BuildMesh) {
+    if (provider->apiVersion != Version
+        || provider->structSize < sizeof(MeshProvider)
+        || !provider->buildMesh) {
         return nullptr;
     }
     return provider;
 }
 
-inline QVariant EncodeProviderResult(ProviderResult result)
+inline QVariant encodeProviderResult(ProviderResult result)
 {
     return QVariantMap{
         {QStringLiteral("apiVersion"), Version},
-        {QStringLiteral("result"), static_cast<int>(result)},
+        {QStringLiteral("result"), int(result)},
     };
 }
 
-inline ProviderResult DecodeProviderResult(const QVariant &value)
+inline ProviderResult decodeProviderResult(const QVariant &value)
 {
     const QVariantMap map = value.toMap();
     if (map.value(QStringLiteral("apiVersion")).toInt() != Version) {
         return ProviderResult::None;
     }
-
-    switch (static_cast<ProviderResult>(map.value(QStringLiteral("result")).toInt())) {
-    case ProviderResult::None:
-        return ProviderResult::None;
-    case ProviderResult::Rendered:
-        return ProviderResult::Rendered;
-    case ProviderResult::Declined:
-        return ProviderResult::Declined;
-    case ProviderResult::DeclinedByPolicy:
-        return ProviderResult::DeclinedByPolicy;
-    }
-    return ProviderResult::None;
+    return ProviderResult(map.value(QStringLiteral("result")).toInt());
 }
 
-inline bool ProviderRendered(const QVariant &value)
+inline bool providerRendered(const QVariant &value)
 {
-    return DecodeProviderResult(value) == ProviderResult::Rendered;
+    return decodeProviderResult(value) == ProviderResult::Rendered;
 }
 
-inline bool ProviderDeclinedByPolicy(const QVariant &value)
+inline bool providerDeclinedByPolicy(const QVariant &value)
 {
-    return DecodeProviderResult(value) == ProviderResult::DeclinedByPolicy;
+    return decodeProviderResult(value) == ProviderResult::DeclinedByPolicy;
 }
-} // namespace BetterBlurDxApi
+}

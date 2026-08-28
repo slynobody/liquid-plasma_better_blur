@@ -151,7 +151,7 @@ public:
     /**
      * Get effective blur opacity for requested window
      */
-    qreal getEffectiveBlurOpacity(const KWin::EffectWindow *w, KWin::WindowPaintData &data) const;
+    qreal getEffectiveBlurOpacity(const KWin::EffectWindow *w, KWin::WindowPaintData &data, bool keepBlurWhileTransformed = false) const;
 
     /**
      * Check if the provided window's blur region is fully covered by

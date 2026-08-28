@@ -24,15 +24,15 @@
 
 #include <memory>
 
-Q_LOGGING_CATEGORY(ROUNDED_CORNERS_PASS, "kwin_effect_better_blur_dx.rounded_corners_pass", QtInfoMsg)
+Q_LOGGING_CATEGORY(ROUNDED_CORNERS_PASS, "kwin_effect_better_blur_dx_wobbly_api.rounded_corners_pass", QtInfoMsg)
 
 std::unique_ptr<BBDX::RoundedCornersPass> BBDX::RoundedCornersPass::create() {
     std::unique_ptr<RoundedCornersPass> pass{new RoundedCornersPass};
 
     pass->m_shader = KWin::ShaderManager::instance()->generateShaderFromFile(
         KWin::ShaderTrait::MapTexture,
-        BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/rounded_corners.vert"),
-        BBDX::shaderFilePath(":/effects/better_blur_dx/shaders/rounded_corners.frag")
+        BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/rounded_corners.vert"),
+        BBDX::shaderFilePath(":/effects/better_blur_dx_wobbly_api/shaders/rounded_corners.frag")
     );
 
     if (!pass->m_shader) {

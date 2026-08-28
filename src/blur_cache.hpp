@@ -179,7 +179,6 @@ public:
      */
     KWin::GLTexture* cachedTexture() const { return m_cachedTexture.get(); }
     KWin::GLFramebuffer* cachedFramebuffer() const { return m_cachedFramebuffer.get(); }
-    const KWin::Rect& backgroundRect() const { return m_backgroundRect; }
     const KWin::Region& accumulatedDirtyRegion() const { return m_accumulatedDirtyRegion; }
     const std::chrono::steady_clock::time_point& lastFlush() const { return m_lastFlush; }
     bool isFlushing() const { return m_isFlushing; }
@@ -301,6 +300,11 @@ public:
      * Should be called at the very end of the blur passes
      */
     void drawCached(const KWin::RenderViewport &viewport, BBDX::BlurRenderData &renderInfo, KWin::GLVertexBuffer *vbo, const int vertexCount, const float modulation) const;
+
+    // Complete a cache flush without drawing the default screen composite.
+    // Used by inter-effect API consumers that will composite cachedTexture()
+    // themselves later in the same nested drawWindow() chain.
+    void finishExternalCache(BBDX::BlurRenderData &renderInfo) const;
 
     /**
      * vbo->draw() wrapper to draw into BlurCacheData of the provided cache

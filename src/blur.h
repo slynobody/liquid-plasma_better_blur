@@ -16,9 +16,6 @@
 #include "window_manager.hpp"
 #include "settings.hpp"
 
-// Mesh API for wobble-aware blur
-#include "better_blur_dx_api.hpp"
-
 #include <memory>
 #include <opengl/glframebuffer.h>
 
@@ -88,14 +85,6 @@ struct BlurEffectData
      * Color transformation matrix (brightness, contrast, and saturation).
      */
     std::optional<QMatrix4x4> colorMatrix;
-
-    // Mesh data from BetterWobblyWindows for non-rectangular/wobbled blur rendering
-    // These are populated by BetterWobblyWindows via the BetterBlurDxApi when a window
-    // is wobbled. Cleared automatically on focus changes to prevent stale geometry.
-    std::vector<BetterBlurDxApi::MeshVertex> meshVertices;
-    float meshOpacity = 1.0f;
-    bool hasMesh = false;
-    bool meshSuppressedDefaultComposite = false;
 };
 
 class BlurEffect : public KWin::Effect
@@ -148,10 +137,20 @@ private:
     RegionF blurRegion(EffectWindow *w) const;
     RegionF decorationBlurRegion(const EffectWindow *w) const;
     bool decorationSupportsBlurBehind(const EffectWindow *w) const;
+    bool upstreamBetterBlurDxLoaded() const;
+    bool canHandleBetterWobblyProviderRequest(const EffectWindow *w) const;
+    bool betterWobblyProviderPolicyAllowsBlur(const EffectWindow *w) const;
     bool shouldBlur(const EffectWindow *w, int mask, const WindowPaintData &data) const;
     void updateBlurRegion(EffectWindow *w);
     void blur(const RenderTarget &renderTarget, const RenderViewport &viewport, EffectWindow *w, int mask, const Region &deviceRegion, WindowPaintData &data);
-    void renderMeshBlur(const RenderTarget &renderTarget, const RenderViewport &viewport, EffectWindow *w, const Region &deviceRegion, WindowPaintData &data, BlurEffectData &blurInfo);
+    bool drawBetterWobblyMesh(const RenderTarget &renderTarget,
+                              const RenderViewport &viewport,
+                              EffectWindow *w,
+                              const Region &deviceRegion,
+                              WindowPaintData &data,
+                              BlurRenderData &renderInfo,
+                              const Rect &backgroundRect,
+                              float modulation);
     GLTexture *ensureNoiseTexture();
 
 private:
@@ -163,6 +162,19 @@ private:
         int offsetLocation;
         int halfpixelLocation;
     } m_onscreenPass;
+
+    struct
+    {
+        std::unique_ptr<GLShader> shader;
+        int mvpMatrixLocation = -1;
+        int textureSizeLocation = -1;
+        int opacityLocation = -1;
+        int boxLocation = -1;
+        int cornerRadiusLocation = -1;
+        int roundedMaskEnabledLocation = -1;
+    } m_wobblyCompositePass;
+
+    std::vector<GLVertex2D> m_wobblyCompositeVertices;
 
 #if BBDX_NOT_NEEDED
     struct
@@ -204,21 +216,6 @@ private:
         qreal noiseTextureScale = 1.0;
         int noiseTextureStength = 0;
     } m_noisePass;
-
-    // Mesh refraction pass for border highlight with mesh geometry
-    struct
-    {
-        std::unique_ptr<GLShader> shader;
-        int mvpMatrixLocation;
-        int colorMatrixLocation;
-        int offsetLocation;
-        int halfpixelLocation;
-        int meshRectSizeLocation;
-        int borderHighlightColorLocation;
-        int borderHighlightWidthLocation;
-        int borderHighlightMouseLocation;
-        int borderHighlightMouseStrengthLocation;
-    } m_meshRefractionPass;
 
     bool m_valid = false;
     long net_wm_blur_region = 0;
@@ -279,8 +276,8 @@ private:
     std::unique_ptr<BBDX::RefractionPass> m_refractionPass{};
     std::unique_ptr<BBDX::RoundedCornersPass> m_roundedCornersPass{};
 
-    // Mouse position tracking for cache invalidation option
-    QPointF m_lastMousePosition{};
+    // Mouse position tracking for border/mouse highlight
+    QPointF m_lastMousePosition{0.5, 0.5};
 
 public:
     WindowManager* windowManager() const { return m_windowManager.get(); }
@@ -291,7 +288,10 @@ public:
 inline bool BlurEffect::provides(Effect::Feature feature)
 {
     if (feature == Blur) {
-        return true;
+        // Be the normal blur provider only when the original Better Blur DX is
+        // not loaded. This keeps the renamed build fully functional on its own
+        // without competing with the upstream plugin when both are enabled.
+        return !upstreamBetterBlurDxLoaded();
     }
     return KWin::Effect::provides(feature);
 }

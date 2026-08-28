@@ -11,7 +11,7 @@
 #include <QLoggingCategory>
 #include <qloggingcategory.h>
 
-Q_LOGGING_CATEGORY(BBDX_UTILS, "kwin_effect_better_blur_dx.utils", QtInfoMsg)
+Q_LOGGING_CATEGORY(BBDX_UTILS, "kwin_effect_better_blur_dx_wobbly_api.utils", QtInfoMsg)
 
 QSize BBDX::getTextureSize(const QRect &backgroundRect, const size_t i) {
     return QSize(std::max(1, backgroundRect.width() / (1 << i)),
@@ -89,14 +89,5 @@ KWin::Rect BBDX::rectRoundedOut(KWin::RectF rect) {
                       QPoint(std::ceil(rect.right()), std::ceil(rect.bottom())));
 #else
     return rect.roundedIn();
-#endif
-}
-
-KWin::RegionF BBDX::regionTranslatedF(KWin::RegionF region, QPointF translation) {
-#if KWIN_VERSION < KWIN_VERSION_CODE(6, 6, 90)
-    // < 6.7 maps RegionF to integral (Q)Region
-    return region.translated(translation.toPoint());
-#else
-    return region.translated(translation);
 #endif
 }

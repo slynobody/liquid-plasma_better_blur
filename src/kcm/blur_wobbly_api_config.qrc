@@ -1,0 +1,5 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource prefix="/effects/better_blur_dx_woapi/kcm/">
+    <file>about.html</file>
+  </qresource>
+</RCC>
