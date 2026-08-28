@@ -18,12 +18,9 @@ debian-package for easy installation. or build it yourself.
 new features 
 * border highlight
 * mouse highlight
-* wobbly-windows-compatibility (though bundled [BetterWobblyWindows](https://github.com/GoldenBilly/BetterWobblyWindows)
+* wobbly-windows-compatibility (though bundled [BetterWobblyWindows](https://github.com/GoldenBilly/BetterWobblyWindows))
 * better rounded corners
 * performace-tweaks
-
-<img width="600" height="470" alt="screenshot-20260813-221402" src="https://github.com/user-attachments/assets/53057b7b-b9eb-4b6a-81e9-f4e46f68111c" />
-
 
 # usage
 1. *dis*able 'blur' & 'transparency' - effects (settings-window)
