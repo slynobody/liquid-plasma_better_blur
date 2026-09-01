@@ -33,6 +33,9 @@ jobs:
       - name: Configure CMake
         run: cmake -B ${{github.workspace}}/build
 
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build -j
+        
       - name: Build Packages
         run: |
           cmake --build ${{github.workspace}}/build --target package
@@ -43,5 +46,3 @@ jobs:
           name: debian-packages
           path: ${{github.workspace}}/build/*.deb
 
-      - name: Build
-        run: cmake --build ${{github.workspace}}/build -j
