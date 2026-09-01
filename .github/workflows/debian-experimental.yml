@@ -36,13 +36,3 @@ jobs:
       - name: Build
         run: cmake --build ${{github.workspace}}/build -j
         
-      - name: Build Packages
-        run: |
-          cmake --build ${{github.workspace}}/build --target package
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: debian-packages
-          path: ${{github.workspace}}/build/*.deb
-
