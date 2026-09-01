@@ -28,7 +28,28 @@ jobs:
       run: pacman -S --needed --noconfirm vulkan-devel base-devel git extra-cmake-modules qt6-tools kwin
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_INSTALL_PREFIX=/usr
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build -j
+
+    # New Step: Install to a staging directory to create a package
+    - name: Install to staging
+      run: |
+        mkdir -p ${{github.workspace}}/staging
+        cmake --install ${{github.workspace}}/build --prefix ${{github.workspace}}/staging/usr
+
+    # New Step: Create a tarball (or you could use makepkg for Arch packages)
+    - name: Create Package Archive
+      run: |
+        cd ${{github.workspace}}/staging
+        tar -czf ../liquid-plasma-better_blur-arch-x86_64.tar.gz .
+        cd ..
+
+    # New Step: Upload the package as an artifact
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: liquid-plasma-better_blur-arch-x86_64
+        path: ${{github.workspace}}/liquid-plasma-better_blur-arch-x86_64.tar.gz
+        retention-days: 30
