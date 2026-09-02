@@ -27,86 +27,12 @@ jobs:
       - name: Upgrade Packages
         run: apt-get upgrade -y
 
-      - name: Install Build Dependencies
-        run: |
-          apt-get install -y -f cmake g++ extra-cmake-modules qt6-tools-dev kwin-dev \
-            libkf6configwidgets-dev gettext libkf6crash-dev libkf6globalaccel-dev \
-            libkf6kio-dev libkf6service-dev libkf6notifications-dev libkf6kcmutils-dev \
-            libkdecorations3-dev libx11-dev libxcb-res0-dev libxcb-composite0-dev \
-            libxcb-randr0-dev libdrm-dev libxcb-present-dev libx11-xcb-dev \
-            libxcb-shm0-dev
-
-      - name: Install Debian Packaging Tools
-        run: apt-get install -y debhelper devscripts dpkg-dev lintian
-
-      - name: Prepare Debian Package Structure
-        run: |
-          mkdir -p debian
-          
-          # Create control file
-          cat > debian/control <<EOF
-Source: kwin-effects-better-blur-dx-plus
-Section: x11
-Priority: optional
-Maintainer: slynobody <sly@nobody.com>
-Build-Depends: cmake, extra-cmake-modules, qt6-tools-dev, kwin-dev, libkf6configwidgets-dev, libkf6crash-dev, libkf6globalaccel-dev, libkf6kio-dev, libkf6service-dev, libkf6notifications-dev, libkf6kcmutils-dev, libkdecorations3-dev, libx11-dev, libxcb-res0-dev, libxcb-composite0-dev, libxcb-randr0-dev, libdrm-dev, libxcb-present-dev, libx11-xcb-dev, libxcb-shm0-dev
-Standards-Version: 4.6.0
-Homepage: https://github.com/slynobody/kwin-effects-better-blur-dx-plus
-
-Package: kwin-effects-better-blur-dx-plus
-Architecture: any
-Depends: \${shlibs:Depends}, \${misc:Depends}
-Description: Better Blur effect for KWin (DX+ version)
- A KDE window manager effect with improved blur rendering based on the Better Blur effect.
-EOF
-
-          # Create changelog
-          cat > debian/changelog <<EOF
-kwin-effects-better-blur-dx-plus (2.6.1b-1) experimental; urgency=medium
-
-  * Initial release
-
- -- slynobody <email@example.com> $(date -R)
-
-EOF
-
-          # Create other required files
-          touch debian/compat
-          echo "3.0 (native)" > debian/source/format
-          
-          # Create install file for CMake install target
-          cat > debian/install <<EOF
-src/kwin_better_blur_dx_wapi_config.so /usr/lib/x86_64-linux-gnu/qt6/plugins/kwin/effects/configs/
-src/better_blur_dx_woapi.so /usr/lib/x86_64-linux-gnu/qt6/plugins/kwin/effects/plugins/
-EOF
-
-          # Clean up any existing build directories
-          rm -rf build
+      - name: Install Dependencies
+        run: apt-get install -y -f cmake g++ extra-cmake-modules qt6-tools-dev kwin-dev libkf6configwidgets-dev gettext libkf6crash-dev libkf6globalaccel-dev libkf6kio-dev libkf6service-dev libkf6notifications-dev libkf6kcmutils-dev libkdecorations3-dev libx11-dev libxcb-res0-dev libxcb-composite0-dev libxcb-randr0-dev libdrm-dev libxcb-present-dev libx11-xcb-dev libxcb-shm0-dev
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B ${{github.workspace}}/build
 
       - name: Build
         run: cmake --build ${{github.workspace}}/build -j
-
-      - name: Build Debian Package
-        run: |
-          cd ${{github.workspace}}
-          # Copy current source to a clean directory for packaging
-          rm -rf debian/source
-          mkdir -p debian/source
-          cp -r src/* debian/source/ 2>/dev/null || true
-          
-          # Use debhelper to build the package
-          debuild -us -uc -b -nc
-
-      - name: Upload .deb Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: kwin-effects-better-blur-dx-plus
-          path: ${{github.workspace}}/*.deb
-          
-      - name: Validate Package
-        run: |
-          cd ${{github.workspace}}
-          lintian *.deb || true
+        
