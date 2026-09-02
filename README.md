@@ -3,17 +3,13 @@
 # better blur dx+
 <img width="468" height="216" alt="ezgif-2791664fde5198af" src="https://github.com/user-attachments/assets/1b245ea7-5e8f-4c0f-9cd5-7d6458cf8d19" />
 
-## "liquid" blur for kde plasma (linux, interface-effect / plasma-extension, *precompiled*)
+## "liquid" blur for kde plasma (linux, plasma-extension, interface-effect)
 
 forked from: https://github.com/xarblu/kwin-effects-better-blur-dx
 
 <img width="800" height="450" alt="ezgif-8369bac370314c2f" src="https://github.com/user-attachments/assets/029c58df-c542-42f6-b5e2-127a1f54c3ac" />
 
-
-debian-package for easy installation. or build it yourself.
-
-
-# experimental: (v2.6)
+# experimental: (v2.6.1b)
 
 new features 
 * border highlight
@@ -23,13 +19,14 @@ new features
 * performace-tweaks
 
 # usage
+0. install package or compile
 1. *dis*able 'blur' & 'transparency' - effects (settings-window)
-2. *en*able 'better blur dx+' (settings-window)
+2. *en*able 'better blur dx+' (settings-window; optional 'better wobbly windows', too)
 3. use a global theme that supports translucency, like [this](https://www.pling.com/p/2328884)
 
 
 
-# install (debian, sid, Plasma 6.7.4, QT 6.10.2)
+# install (debian, sid, Plasma 6.7.4, QT 6.10.2; precompiled) 
 > wget https://github.com/slynobody/liquid-plasma_better_blur/releases/download/2.6/int_better_blur_liquid_2-6-6_7_4_amd64.deb
 > 
 > sudo apt install ./int_better_blur_liquid_2-6-6_7_4_amd64.deb
@@ -180,6 +177,8 @@ To build a version for KWin X11, run the script with the `--x11` flag.
 
 **Rerun the build script when rebuilding the effect.**
 
+... (optional) also compile (and enable) [Better Wobbly Windows](https://github.com/GoldenBilly/BetterWobblyWindows)
+
 # Usage
 This effect conflicts with the default KWin blur effect (and other effects replacing it).
 
@@ -191,7 +190,7 @@ This effect conflicts with the default KWin blur effect (and other effects repla
 ### Window transparency
 The window needs to be translucent in order for the blur to be visible. This can be done in multiple ways:
 - Use a transparent theme for the program if it supports it
-- Use a transparent color scheme, such as [Alpha](https://store.kde.org/p/1972214)
+- Use a transparent color scheme, such as [this](https://www.pling.com/p/2328884
 - Create a window rule that reduces the window opacity
 
 ### Obtaining window classes
